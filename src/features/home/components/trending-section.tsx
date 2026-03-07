@@ -1,20 +1,54 @@
-import { StyleSheet, View } from 'react-native';
+import { useRouter } from 'expo-router';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { spacing } from '@/src/theme/tokens';
+import { colors, spacing } from '@/src/theme/tokens';
+import { useSuggestedStore } from '../../../../store/suggestedStore';
 
-import { trendingRecipes } from '../data/home-content';
 import { SectionHeader } from './section-header';
 import { TrendingRecipeCard } from './trending-recipe-card';
 
-export function TrendingSection() {
+type TrendingSectionProps = {
+  onRecipePress?: (id: string) => void;
+};
+
+export function TrendingSection({ onRecipePress }: TrendingSectionProps) {
+  const router = useRouter();
+  const { recipes, isLoading } = useSuggestedStore();
+
+  const visible = recipes.slice(0, 4);
+
   return (
     <View style={styles.container}>
-      <SectionHeader actionLabel="See all" title="Trending Now" />
-      <View style={styles.cardsRow}>
-        {trendingRecipes.map((recipe) => (
-          <TrendingRecipeCard key={recipe.id} recipe={recipe} />
-        ))}
-      </View>
+      <SectionHeader actionLabel="See all" title="Trending Now" onAction={() => router.push('/trending')} />
+      {isLoading && visible.length === 0 ? (
+        <View style={styles.loading}>
+          <ActivityIndicator color={colors.accent} size="small" />
+        </View>
+      ) : (
+        <View style={styles.cardsRow}>
+          {visible.map((recipe: any) => {
+            const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
+            const meta = [
+              totalTime > 0 ? `${totalTime} min` : null,
+              recipe.difficulty || null,
+            ].filter(Boolean).join(' · ');
+
+            return (
+              <TrendingRecipeCard
+                key={recipe.id}
+                recipe={{
+                  id: recipe.id,
+                  title: recipe.title,
+                  subtitle: meta,
+                  imageAlt: recipe.title,
+                  thumbnailUrl: recipe.thumbnailUrl || null,
+                }}
+                onPress={onRecipePress}
+              />
+            );
+          })}
+        </View>
+      )}
     </View>
   );
 }
@@ -27,5 +61,9 @@ const styles = StyleSheet.create({
   },
   container: {
     marginTop: spacing.xl,
+  },
+  loading: {
+    alignItems: 'center',
+    marginTop: spacing.md,
   },
 });

@@ -9,22 +9,23 @@ import { getFontFamily } from "../../utils/fonts";
 import { sc } from "../../utils/deviceScale";
 
 const C = {
-  text: "#111111",
-  muted: "#B4B4B4",
-  green: "#7FEF80",
-  greenDark: "#385225",
-  greenLight: "#DFF7C4",
+  bg: "#030712",
+  text: "#F3F5F8",
+  muted: "#7A808F",
+  accent: "#B6FF00",
+  accentText: "#0B0E14",
+  accentSubtle: "rgba(182,255,0,0.12)",
 };
 
 const STEP_GRADIENTS = [
-  ["#FFF8F0", "#FFEEDD"], // warm cream
-  ["#F0FFF4", "#DDEFDD"], // soft sage
-  ["#F5F0FF", "#E8E0FF"], // lavender
-  ["#FFF9E6", "#FFF0CC"], // golden
-  ["#F0F7FF", "#DCE8FF"], // sky
-  ["#FFF0F3", "#FFDDE4"], // rose
-  ["#F0FFFA", "#D8F5EB"], // mint
-  ["#FFF5F0", "#FFE4D6"], // peach
+  ["#030712", "#0D1A14"],
+  ["#030712", "#0D1220"],
+  ["#030712", "#150D20"],
+  ["#030712", "#1A1208"],
+  ["#030712", "#0A1520"],
+  ["#030712", "#1A0D10"],
+  ["#030712", "#0A1A14"],
+  ["#030712", "#1A1408"],
 ];
 
 function makeStyles(FONT, isRTL) {
@@ -48,7 +49,7 @@ function makeStyles(FONT, isRTL) {
       alignItems: "center",
       justifyContent: "center",
       overflow: "hidden",
-      backgroundColor: "rgba(255,255,255,0.5)",
+      backgroundColor: "rgba(255,255,255,0.08)",
     },
     quitText: {
       fontSize: sc(16),
@@ -60,7 +61,7 @@ function makeStyles(FONT, isRTL) {
       paddingHorizontal: 14,
       paddingVertical: 8,
       overflow: "hidden",
-      backgroundColor: "rgba(255,255,255,0.5)",
+      backgroundColor: "rgba(255,255,255,0.08)",
     },
     stepPillText: {
       fontSize: sc(13),
@@ -82,13 +83,13 @@ function makeStyles(FONT, isRTL) {
       borderRadius: 2,
     },
     progressCompleted: {
-      backgroundColor: C.green,
+      backgroundColor: C.accent,
     },
     progressCurrent: {
-      backgroundColor: C.greenDark,
+      backgroundColor: "rgba(182,255,0,0.5)",
     },
     progressUpcoming: {
-      backgroundColor: "rgba(0,0,0,0.08)",
+      backgroundColor: "rgba(255,255,255,0.08)",
     },
 
     // ─── Center content ───────────────────────────
@@ -119,7 +120,7 @@ function makeStyles(FONT, isRTL) {
       marginTop: 20,
     },
     chip: {
-      backgroundColor: "rgba(0,0,0,0.05)",
+      backgroundColor: "rgba(255,255,255,0.07)",
       borderRadius: 999,
       paddingHorizontal: 14,
       paddingVertical: 7,
@@ -135,9 +136,9 @@ function makeStyles(FONT, isRTL) {
     tipBanner: {
       backgroundColor: "rgba(253,197,151,0.18)",
       borderLeftWidth: isRTL ? 0 : 3,
-      borderLeftColor: isRTL ? "transparent" : "#FDC597",
+      borderLeftColor: isRTL ? "transparent" : "rgba(253,197,151,0.6)",
       borderRightWidth: isRTL ? 3 : 0,
-      borderRightColor: isRTL ? "#FDC597" : "transparent",
+      borderRightColor: isRTL ? "rgba(253,197,151,0.6)" : "transparent",
       borderRadius: 10,
       padding: 14,
       marginTop: 24,
@@ -146,13 +147,13 @@ function makeStyles(FONT, isRTL) {
     tipLabel: {
       fontSize: sc(13),
       fontFamily: FONT.semibold,
-      color: "#7A4A21",
+      color: "#FDC597",
       marginBottom: 4,
     },
     tipText: {
       fontSize: sc(13),
       fontFamily: FONT.regular,
-      color: "#7A4A21",
+      color: "rgba(253,197,151,0.8)",
       fontStyle: "italic",
       lineHeight: sc(19),
       writingDirection: isRTL ? "rtl" : "ltr",
@@ -173,10 +174,10 @@ function makeStyles(FONT, isRTL) {
       alignItems: "center",
     },
     navBtnPrev: {
-      backgroundColor: "rgba(255,255,255,0.7)",
+      backgroundColor: "rgba(255,255,255,0.08)",
     },
     navBtnNext: {
-      backgroundColor: C.green,
+      backgroundColor: C.accent,
     },
     navBtnDisabled: {
       opacity: 0.35,
@@ -184,7 +185,7 @@ function makeStyles(FONT, isRTL) {
     navBtnPrevText: {
       fontSize: sc(15),
       fontFamily: FONT.medium,
-      color: C.greenDark,
+      color: C.text,
     },
     navBtnTextDisabled: {
       color: C.muted,
@@ -192,7 +193,7 @@ function makeStyles(FONT, isRTL) {
     navBtnNextText: {
       fontSize: sc(15),
       fontFamily: FONT.semibold,
-      color: C.greenDark,
+      color: C.accentText,
     },
   });
 }
@@ -266,11 +267,11 @@ export default function StepTimerSheet({
       {/* ─── Top bar ─────────────────────────────── */}
       <View style={[s.topBar, { paddingTop: insets.top + 10 }]}>
         <Pressable onPress={handleQuit} hitSlop={8}>
-          <BlurView intensity={40} tint="light" style={s.quitPill}>
+          <BlurView intensity={40} tint="dark" style={s.quitPill}>
             <Text style={s.quitText}>{"\u2715"}</Text>
           </BlurView>
         </Pressable>
-        <BlurView intensity={40} tint="light" style={s.stepPill}>
+        <BlurView intensity={40} tint="dark" style={s.stepPill}>
           <Text style={s.stepPillText}>
             {t("cooking.step", { current: currentStep + 1, total: totalSteps })}
           </Text>

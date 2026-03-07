@@ -9,13 +9,13 @@ import { getFontFamily } from "../../utils/fonts";
 import { sc } from "../../utils/deviceScale";
 
 const C = {
-  bg: "#F4F5F7",
-  card: "#ffffff",
-  text: "#111111",
-  muted: "#B4B4B4",
-  green: "#7FEF80",
-  greenDark: "#385225",
-  greenLight: "#DFF7C4",
+  bg: "#030712",
+  card: "#121722",
+  text: "#F3F5F8",
+  muted: "#7A808F",
+  accent: "#B6FF00",
+  accentText: "#0B0E14",
+  accentSubtle: "rgba(182,255,0,0.12)",
 };
 
 function makeStyles(FONT) {
@@ -76,12 +76,12 @@ function makeStyles(FONT) {
       paddingHorizontal: 24,
       paddingTop: 24,
       paddingBottom: 32,
-      alignItems: "flex-end", // Align text right for RTL context
+      alignItems: "flex-start",
     },
     doneLabel: {
       fontSize: sc(13),
       fontFamily: FONT.semibold,
-      color: C.green,
+      color: C.accent,
       textTransform: "uppercase",
       letterSpacing: 1,
       marginBottom: 6,
@@ -92,14 +92,14 @@ function makeStyles(FONT) {
       color: C.text,
       lineHeight: sc(32),
       paddingTop: 4,
-      textAlign: "right", // Ensure RTL rendering matches
+      textAlign: "left",
     },
     subtitle: {
       fontSize: sc(14),
       fontFamily: FONT.regular,
       color: C.muted,
       marginTop: 8,
-      textAlign: "right",
+      textAlign: "left",
     },
     metaRow: {
       flexDirection: "row",
@@ -108,7 +108,7 @@ function makeStyles(FONT) {
       marginTop: 16,
     },
     metaPill: {
-      backgroundColor: C.greenLight,
+      backgroundColor: C.accentSubtle,
       borderRadius: 999,
       paddingHorizontal: 14,
       paddingVertical: 7,
@@ -116,7 +116,7 @@ function makeStyles(FONT) {
     metaPillText: {
       fontSize: sc(12),
       fontFamily: FONT.semibold,
-      color: C.greenDark,
+      color: C.accent,
       letterSpacing: -0.05,
     },
 
@@ -126,7 +126,7 @@ function makeStyles(FONT) {
       paddingTop: 10,
     },
     primaryBtn: {
-      backgroundColor: C.green,
+      backgroundColor: C.accent,
       borderRadius: 999,
       paddingVertical: 16,
       alignItems: "center",
@@ -134,7 +134,7 @@ function makeStyles(FONT) {
     primaryText: {
       fontSize: sc(16),
       fontFamily: FONT.semibold,
-      color: C.greenDark,
+      color: C.accentText,
     },
   });
 }

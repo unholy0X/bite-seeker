@@ -5,25 +5,41 @@ import { colors, radii, spacing } from '@/src/theme/tokens';
 
 type InspiredActionsRowProps = {
   onCookPress: () => void;
+  onSkipPress: () => void;
+  onFavoritePress: () => void;
+  isFavorited: boolean;
 };
 
-function RoundIconButton({ icon, onPress }: { icon: 'x' | 'heart'; onPress: () => void }) {
-  return (
-    <Pressable onPress={onPress} style={styles.roundButton}>
-      <Feather color={colors.textSecondary} name={icon} size={22} />
-    </Pressable>
-  );
-}
-
-export function InspiredActionsRow({ onCookPress }: InspiredActionsRowProps) {
+export function InspiredActionsRow({ onCookPress, onSkipPress, onFavoritePress, isFavorited }: InspiredActionsRowProps) {
   return (
     <View style={styles.row}>
-      <RoundIconButton icon="x" onPress={() => {}} />
-      <Pressable onPress={onCookPress} style={styles.cookButton}>
+      <Pressable
+        onPress={onSkipPress}
+        style={({ pressed }) => [styles.roundButton, pressed && { opacity: 0.7 }]}
+        hitSlop={8}
+      >
+        <Feather color={colors.textSecondary} name="x" size={22} />
+      </Pressable>
+
+      <Pressable
+        onPress={onCookPress}
+        style={({ pressed }) => [styles.cookButton, pressed && { opacity: 0.85 }]}
+      >
         <Feather color={colors.accentText} name="star" size={13} />
         <Text style={styles.cookLabel}>Cook This!</Text>
       </Pressable>
-      <RoundIconButton icon="heart" onPress={() => {}} />
+
+      <Pressable
+        onPress={onFavoritePress}
+        style={({ pressed }) => [styles.roundButton, pressed && { opacity: 0.7 }]}
+        hitSlop={8}
+      >
+        <Feather
+          color={isFavorited ? colors.accent : colors.textSecondary}
+          name="heart"
+          size={22}
+        />
+      </Pressable>
     </View>
   );
 }

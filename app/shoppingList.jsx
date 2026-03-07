@@ -29,6 +29,20 @@ if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental
     UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+const C = {
+  bg: "#030712",
+  surface: "#121722",
+  surfaceStrong: "#1B202C",
+  border: "rgba(255,255,255,0.07)",
+  accent: "#B6FF00",
+  accentText: "#0B0E14",
+  accentSubtle: "rgba(182,255,0,0.12)",
+  text: "#F3F5F8",
+  secondary: "#9AA0AE",
+  muted: "#7A808F",
+  error: "#FF6B6B",
+};
+
 // Category PNG images (same map as pantry.jsx)
 const CATEGORY_IMAGES = {
     dairy: require("../assets/Dairy.png"),
@@ -110,20 +124,20 @@ const CATEGORIES = [
 
 const COMMON_UNITS = ["", "g", "kg", "ml", "L", "pcs", "lb", "oz", "bunch", "can"];
 
-// Subtle tinted backgrounds per category (same spirit as shopping.jsx CARD_COLORS)
+// Subtle tinted backgrounds per category (dark variants)
 const CATEGORY_TINTS = {
-    dairy: { bg: "#EBF3FD", accent: "#DAE8F9" },
-    produce: { bg: "#F0F8E8", accent: "#E2F0D4" },
-    proteins: { bg: "#FDEEEE", accent: "#F9DEDE" },
-    bakery: { bg: "#FDF2E8", accent: "#F9E4D0" },
-    spices: { bg: "#FDF2E8", accent: "#F9E4D0" },
-    pantry: { bg: "#F2EEFD", accent: "#E6DFFA" },
-    beverages: { bg: "#ECF6F3", accent: "#DBEeE8" },
-    condiments: { bg: "#FDF2E8", accent: "#F9E4D0" },
-    snacks: { bg: "#F2EEFD", accent: "#E6DFFA" },
-    frozen: { bg: "#EBF3FD", accent: "#DAE8F9" },
-    household: { bg: "#ECF6F3", accent: "#DBEeE8" },
-    other: { bg: "#F4F5F7", accent: "#E8E8E8" },
+    dairy:      { bg: "#111A26", accent: "#182236" },
+    produce:    { bg: "#0D1A0F", accent: "#152815" },
+    proteins:   { bg: "#1A0F0F", accent: "#281515" },
+    bakery:     { bg: "#1A1408", accent: "#281E0A" },
+    spices:     { bg: "#1A1208", accent: "#28180A" },
+    pantry:     { bg: "#110F1A", accent: "#1A1428" },
+    beverages:  { bg: "#0D1A16", accent: "#152820" },
+    condiments: { bg: "#1A1208", accent: "#28180A" },
+    snacks:     { bg: "#110F1A", accent: "#1A1428" },
+    frozen:     { bg: "#0F1520", accent: "#152030" },
+    household:  { bg: "#0D1A16", accent: "#152820" },
+    other:      { bg: "#121722", accent: "#1B202C" },
 };
 
 // ─── CategoryFolder ─────────────────────────────────────────────────────────
@@ -140,7 +154,7 @@ const CategoryFolder = ({ category, items, isExpanded, onToggle, onToggleItem, o
     const progress = items.length > 0 ? checkedCount / items.length : 0;
 
     return (
-        <View style={[styles.folder, { backgroundColor: isExpanded ? "#ffffff" : tint.bg }]}>
+        <View style={[styles.folder, { backgroundColor: isExpanded ? C.surface : tint.bg }]}>
             {/* Accent circle */}
             <View style={[styles.folderAccent, { backgroundColor: tint.accent }]} />
 
@@ -196,7 +210,7 @@ const CategoryFolder = ({ category, items, isExpanded, onToggle, onToggleItem, o
                             delayLongPress={400}
                         >
                             <View style={[styles.checkbox, item.isChecked && styles.checkboxChecked]}>
-                                {item.isChecked && <CheckIcon width={sc(10)} height={sc(10)} color="#ffffff" />}
+                                {item.isChecked && <CheckIcon width={sc(10)} height={sc(10)} color={C.accentText} />}
                             </View>
                             <View style={styles.itemContent}>
                                 <Text
@@ -304,7 +318,7 @@ const AddItemSheet = ({ onClose, onAdd }) => {
                     <TextInput
                         style={styles.textInput}
                         placeholder={t("detail.itemPlaceholder")}
-                        placeholderTextColor="#B4B4B4"
+                        placeholderTextColor={C.muted}
                         value={name}
                         onChangeText={setName}
                         autoFocus
@@ -317,7 +331,7 @@ const AddItemSheet = ({ onClose, onAdd }) => {
                                 <TextInput
                                     style={styles.qtyInput}
                                     placeholder="1"
-                                    placeholderTextColor="#B4B4B4"
+                                    placeholderTextColor={C.muted}
                                     value={quantity}
                                     onChangeText={setQuantity}
                                     keyboardType="decimal-pad"
@@ -352,7 +366,7 @@ const AddItemSheet = ({ onClose, onAdd }) => {
                             disabled={!name.trim() || isAdding}
                         >
                             {isAdding ? (
-                                <ActivityIndicator size="small" color="#2a5a2a" />
+                                <ActivityIndicator size="small" color={C.accentText} />
                             ) : (
                                 <Text style={styles.addBtnText}>{t("buttons.add", { ns: "common" })}</Text>
                             )}
@@ -425,7 +439,7 @@ const AddItemSheet = ({ onClose, onAdd }) => {
                             <TextInput
                                 style={styles.textInput}
                                 placeholder={t("pantry:addSheet.itemPlaceholder", "e.g. Almond Milk")}
-                                placeholderTextColor="#B4B4B4"
+                                placeholderTextColor={C.muted}
                                 value={name}
                                 onChangeText={setName}
                                 autoFocus
@@ -444,7 +458,7 @@ const AddItemSheet = ({ onClose, onAdd }) => {
                                 <TextInput
                                     style={styles.qtyInput}
                                     placeholder="1"
-                                    placeholderTextColor="#B4B4B4"
+                                    placeholderTextColor={C.muted}
                                     value={quantity}
                                     onChangeText={setQuantity}
                                     keyboardType="decimal-pad"
@@ -479,7 +493,7 @@ const AddItemSheet = ({ onClose, onAdd }) => {
                             disabled={!name.trim() || isAdding}
                         >
                             {isAdding ? (
-                                <ActivityIndicator size="small" color="#2a5a2a" />
+                                <ActivityIndicator size="small" color={C.accentText} />
                             ) : (
                                 <Text style={styles.addBtnText}>{t("buttons.add", { ns: "common" })}</Text>
                             )}
@@ -550,7 +564,7 @@ const StockPantrySheet = ({ items, onStock, onDismiss }) => {
                 disabled={isStocking}
             >
                 {isStocking ? (
-                    <ActivityIndicator size="small" color="#ffffff" />
+                    <ActivityIndicator size="small" color={C.accentText} />
                 ) : (
                     <Text style={styles.stockButtonText}>{t("detail.stockPantryBtn")}</Text>
                 )}
@@ -689,7 +703,7 @@ export default function ShoppingListScreen() {
         return (
             <View style={styles.screen}>
                 <SafeAreaView style={styles.centered}>
-                    <ActivityIndicator size="large" color="#385225" />
+                    <ActivityIndicator size="large" color={C.accent} />
                     <Text style={styles.loadingText}>{t("listLoading")}</Text>
                 </SafeAreaView>
             </View>
@@ -714,7 +728,7 @@ export default function ShoppingListScreen() {
                         </View>
                         {totalItems > 0 && (
                             <Pressable style={styles.completeBtn} onPress={handleComplete}>
-                                <CheckIcon width={sc(16)} height={sc(16)} color="#ffffff" />
+                                <CheckIcon width={sc(16)} height={sc(16)} color={C.accentText} />
                             </Pressable>
                         )}
                     </View>
@@ -746,7 +760,7 @@ export default function ShoppingListScreen() {
                 ) : totalItems === 0 ? (
                     <View style={styles.emptyState}>
                         <View style={styles.emptyIconWrap}>
-                            <ShoppingIcon width={sc(36)} height={sc(32)} color="#385225" />
+                            <ShoppingIcon width={sc(36)} height={sc(32)} color={C.accent} />
                         </View>
                         <Text style={styles.emptyTitle}>{t("detail.listEmpty")}</Text>
                         <Text style={styles.emptySubtitle}>{t("detail.listEmptyHint")}</Text>
@@ -762,7 +776,7 @@ export default function ShoppingListScreen() {
                             <RefreshControl
                                 refreshing={isLoadingDetails}
                                 onRefresh={onRefresh}
-                                tintColor="#385225"
+                                tintColor={C.accent}
                             />
                         }
                     >
@@ -783,7 +797,7 @@ export default function ShoppingListScreen() {
                 {/* FAB with gradient */}
                 <Pressable style={styles.fab} onPress={() => setAddSheetOpen(true)}>
                     <LinearGradient
-                        colors={["#9EFF00", "#039274"]}
+                        colors={["#B6FF00", "#5BC200"]}
                         start={{ x: 0.5, y: 0 }}
                         end={{ x: 0.5, y: 1 }}
                         style={styles.fabGradient}
@@ -815,7 +829,7 @@ export default function ShoppingListScreen() {
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: "#F4F5F7",
+        backgroundColor: C.bg,
     },
     safeArea: {
         flex: 1,
@@ -828,26 +842,26 @@ const styles = StyleSheet.create({
     loadingText: {
         marginTop: 12,
         fontSize: sc(14),
-        color: "#6b6b6b",
+        color: C.muted,
     },
     errorText: {
         fontSize: sc(14),
-        color: "#cc3b3b",
+        color: C.error,
     },
     // Header hero
     headerHero: {
-        backgroundColor: "#ffffff",
+        backgroundColor: C.surface,
         marginHorizontal: 20,
         marginTop: 12,
         marginBottom: 8,
         borderRadius: 24,
         padding: 20,
         overflow: "hidden",
-        shadowColor: "#000",
+        shadowColor: "transparent",
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
+        shadowOpacity: 0,
         shadowRadius: 8,
-        elevation: 2,
+        elevation: 0,
     },
     headerAccent: {
         position: "absolute",
@@ -856,7 +870,7 @@ const styles = StyleSheet.create({
         borderRadius: 60,
         top: -50,
         right: -30,
-        backgroundColor: "#E8F5E9",
+        backgroundColor: "rgba(182,255,0,0.06)",
         opacity: 0.5,
     },
     headerAccent2: {
@@ -866,7 +880,7 @@ const styles = StyleSheet.create({
         borderRadius: 40,
         top: -20,
         right: -10,
-        backgroundColor: "#E8F5E9",
+        backgroundColor: "rgba(182,255,0,0.04)",
         opacity: 0.3,
     },
     headerRow: {
@@ -877,13 +891,13 @@ const styles = StyleSheet.create({
         width: sc(36),
         height: sc(36),
         borderRadius: sc(18),
-        backgroundColor: "#F4F5F7",
+        backgroundColor: C.surfaceStrong,
         alignItems: "center",
         justifyContent: "center",
     },
     backText: {
         fontSize: sc(16),
-        color: "#333333",
+        color: C.text,
         fontWeight: "500",
     },
     headerCenter: {
@@ -893,14 +907,14 @@ const styles = StyleSheet.create({
     listTitle: {
         fontSize: sc(20),
         fontWeight: "700",
-        color: "#111111",
+        color: C.text,
         letterSpacing: -0.3,
     },
     completeBtn: {
         width: sc(38),
         height: sc(38),
         borderRadius: sc(19),
-        backgroundColor: "#2a5a2a",
+        backgroundColor: C.accent,
         alignItems: "center",
         justifyContent: "center",
     },
@@ -915,27 +929,27 @@ const styles = StyleSheet.create({
     },
     headerProgressLabel: {
         fontSize: sc(13),
-        color: "#6b6b6b",
+        color: C.muted,
     },
     headerProgressPercent: {
         fontSize: sc(14),
         fontWeight: "700",
-        color: "#2a5a2a",
+        color: C.accent,
     },
     headerProgressBar: {
         height: 6,
         borderRadius: 3,
-        backgroundColor: "#E8F5E9",
+        backgroundColor: "rgba(255,255,255,0.08)",
         overflow: "hidden",
     },
     headerProgressFill: {
         height: "100%",
         borderRadius: 3,
-        backgroundColor: "#7FEF80",
+        backgroundColor: C.accent,
     },
     headerCategoryCount: {
         fontSize: sc(12),
-        color: "#B4B4B4",
+        color: C.muted,
         marginTop: 6,
     },
     // Content
@@ -952,9 +966,9 @@ const styles = StyleSheet.create({
         overflow: "hidden",
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.04,
+        shadowOpacity: 0,
         shadowRadius: 4,
-        elevation: 1,
+        elevation: 0,
     },
     folderAccent: {
         position: "absolute",
@@ -973,7 +987,7 @@ const styles = StyleSheet.create({
         width: sc(52),
         height: sc(52),
         borderRadius: 16,
-        backgroundColor: "rgba(255,255,255,0.7)",
+        backgroundColor: "rgba(255,255,255,0.06)",
         alignItems: "center",
         justifyContent: "center",
     },
@@ -988,10 +1002,10 @@ const styles = StyleSheet.create({
     folderTitle: {
         fontSize: sc(16),
         fontWeight: "600",
-        color: "#111111",
+        color: C.text,
     },
     folderTitleDone: {
-        color: "#B4B4B4",
+        color: C.muted,
     },
     folderMeta: {
         flexDirection: "row",
@@ -1001,39 +1015,39 @@ const styles = StyleSheet.create({
     },
     folderCount: {
         fontSize: sc(12),
-        color: "#999999",
+        color: C.muted,
         fontWeight: "500",
     },
     folderProgressBar: {
         flex: 1,
         height: 3,
         borderRadius: 2,
-        backgroundColor: "rgba(0,0,0,0.06)",
+        backgroundColor: "rgba(255,255,255,0.08)",
         overflow: "hidden",
     },
     folderProgressFill: {
         height: "100%",
         borderRadius: 2,
-        backgroundColor: "#7FEF80",
+        backgroundColor: C.accent,
     },
     expandIcon: {
         width: sc(30),
         height: sc(30),
         borderRadius: sc(15),
-        backgroundColor: "rgba(0,0,0,0.04)",
+        backgroundColor: "rgba(255,255,255,0.06)",
         alignItems: "center",
         justifyContent: "center",
     },
     expandIconActive: {
-        backgroundColor: "#E8F5E9",
+        backgroundColor: C.accentSubtle,
     },
     expandIconText: {
         fontSize: sc(16),
-        color: "#999999",
+        color: C.muted,
         fontWeight: "600",
     },
     expandIconTextActive: {
-        color: "#2a5a2a",
+        color: C.accent,
     },
     // Preview chips
     previewRow: {
@@ -1043,7 +1057,7 @@ const styles = StyleSheet.create({
         gap: 6,
     },
     previewChip: {
-        backgroundColor: "rgba(255,255,255,0.8)",
+        backgroundColor: "rgba(255,255,255,0.06)",
         borderRadius: 10,
         paddingHorizontal: 10,
         paddingVertical: 5,
@@ -1051,17 +1065,17 @@ const styles = StyleSheet.create({
     },
     previewChipText: {
         fontSize: sc(12),
-        color: "#6b6b6b",
+        color: C.secondary,
     },
     previewMore: {
-        backgroundColor: "rgba(56,82,37,0.08)",
+        backgroundColor: C.accentSubtle,
         borderRadius: 10,
         paddingHorizontal: 10,
         paddingVertical: 5,
     },
     previewMoreText: {
         fontSize: sc(12),
-        color: "#385225",
+        color: C.accent,
         fontWeight: "500",
     },
     // Expanded items — same chip layout as pantry
@@ -1072,13 +1086,13 @@ const styles = StyleSheet.create({
     itemChip: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "rgba(255,255,255,0.6)",
+        backgroundColor: C.surfaceStrong,
         borderRadius: 12,
         paddingStart: 12,
         paddingEnd: 8,
         paddingVertical: 10,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: "#EBEBEB",
+        borderColor: C.border,
     },
     itemChipChecked: {
         opacity: 0.5,
@@ -1088,14 +1102,14 @@ const styles = StyleSheet.create({
         height: sc(22),
         borderRadius: sc(11),
         borderWidth: 2,
-        borderColor: "#D4D4D4",
+        borderColor: "rgba(255,255,255,0.25)",
         alignItems: "center",
         justifyContent: "center",
         marginEnd: 10,
     },
     checkboxChecked: {
-        backgroundColor: "#2a5a2a",
-        borderColor: "#2a5a2a",
+        backgroundColor: C.accent,
+        borderColor: C.accent,
     },
     itemContent: {
         flex: 1,
@@ -1104,21 +1118,21 @@ const styles = StyleSheet.create({
     },
     itemName: {
         fontSize: sc(15),
-        color: "#111111",
+        color: C.text,
         fontWeight: "500",
         flexShrink: 1,
     },
     itemNameChecked: {
         textDecorationLine: "line-through",
-        color: "#B4B4B4",
+        color: C.muted,
     },
     itemQty: {
         fontSize: sc(13),
-        color: "#999999",
+        color: C.muted,
         marginStart: 8,
     },
     itemQtyChecked: {
-        color: "#C0C0C0",
+        color: "rgba(255,255,255,0.25)",
     },
     itemDelete: {
         width: sc(24),
@@ -1130,7 +1144,7 @@ const styles = StyleSheet.create({
     },
     itemDeleteText: {
         fontSize: sc(12),
-        color: "#C0C0C0",
+        color: C.muted,
         fontWeight: "600",
     },
     // Empty state
@@ -1144,7 +1158,7 @@ const styles = StyleSheet.create({
         width: sc(88),
         height: sc(88),
         borderRadius: sc(44),
-        backgroundColor: "#E8F5E9",
+        backgroundColor: C.accentSubtle,
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 20,
@@ -1152,18 +1166,18 @@ const styles = StyleSheet.create({
     emptyTitle: {
         fontSize: sc(20),
         fontWeight: "600",
-        color: "#111111",
+        color: C.text,
         marginBottom: 8,
     },
     emptySubtitle: {
         fontSize: sc(14),
-        color: "#999999",
+        color: C.muted,
         textAlign: "center",
         lineHeight: 20,
     },
     emptyBtn: {
         marginTop: 24,
-        backgroundColor: "#7FEF80",
+        backgroundColor: C.accent,
         borderRadius: 999,
         paddingHorizontal: 28,
         paddingVertical: 14,
@@ -1171,7 +1185,7 @@ const styles = StyleSheet.create({
     emptyBtnText: {
         fontSize: sc(15),
         fontWeight: "600",
-        color: "#385225",
+        color: C.accentText,
     },
     // FAB
     fab: {
@@ -1183,7 +1197,7 @@ const styles = StyleSheet.create({
         borderRadius: sc(28),
         alignItems: "center",
         justifyContent: "center",
-        shadowColor: "#039274",
+        shadowColor: C.accent,
         shadowOffset: { width: 0, height: 6 },
         shadowOpacity: 0.3,
         shadowRadius: 10,
@@ -1205,13 +1219,13 @@ const styles = StyleSheet.create({
     sheetTitle: {
         fontSize: sc(20),
         fontWeight: "600",
-        color: "#111111",
+        color: C.text,
         marginBottom: 16,
     },
     // Mode toggle
     modeToggle: {
         flexDirection: "row",
-        backgroundColor: "#F0F0F0",
+        backgroundColor: C.surfaceStrong,
         borderRadius: 999,
         padding: 3,
         marginBottom: 16,
@@ -1223,35 +1237,35 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     modeTabActive: {
-        backgroundColor: "#ffffff",
+        backgroundColor: C.surface,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.08,
+        shadowOpacity: 0,
         shadowRadius: 3,
-        elevation: 1,
+        elevation: 0,
     },
     modeTabText: {
         fontSize: sc(14),
         fontWeight: "500",
-        color: "#999999",
+        color: C.muted,
     },
     modeTabTextActive: {
-        color: "#111111",
+        color: C.text,
         fontWeight: "600",
     },
     inputLabel: {
         fontSize: sc(13),
-        color: "#999999",
+        color: C.muted,
         marginBottom: 8,
         marginTop: 12,
     },
     textInput: {
-        backgroundColor: "#F4F5F7",
+        backgroundColor: C.surfaceStrong,
         borderRadius: 14,
         paddingHorizontal: 16,
         paddingVertical: 12,
         fontSize: sc(16),
-        color: "#111111",
+        color: C.text,
     },
     qtyRow: {
         flexDirection: "row",
@@ -1262,33 +1276,33 @@ const styles = StyleSheet.create({
         width: 80,
     },
     qtyInput: {
-        backgroundColor: "#F4F5F7",
+        backgroundColor: C.surfaceStrong,
         borderRadius: 12,
         paddingHorizontal: 12,
         paddingVertical: 10,
         fontSize: sc(16),
-        color: "#111111",
+        color: C.text,
         textAlign: "center",
     },
     unitWrap: {
         flex: 1,
     },
     unitChip: {
-        backgroundColor: "#F4F5F7",
+        backgroundColor: C.surfaceStrong,
         borderRadius: 12,
         paddingHorizontal: 12,
         paddingVertical: 10,
         marginEnd: 6,
     },
     unitChipSelected: {
-        backgroundColor: "#2a5a2a",
+        backgroundColor: C.accent,
     },
     unitChipText: {
         fontSize: sc(13),
-        color: "#111111",
+        color: C.secondary,
     },
     unitChipTextSelected: {
-        color: "#ffffff",
+        color: C.accentText,
         fontWeight: "600",
     },
     sheetButtons: {
@@ -1300,19 +1314,19 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 14,
         borderRadius: 999,
-        backgroundColor: "#F4F5F7",
+        backgroundColor: C.surfaceStrong,
         alignItems: "center",
     },
     cancelBtnText: {
         fontSize: sc(15),
-        color: "#6b6b6b",
+        color: C.secondary,
         fontWeight: "500",
     },
     addBtn: {
         flex: 1,
         paddingVertical: 14,
         borderRadius: 999,
-        backgroundColor: "#2a5a2a",
+        backgroundColor: C.accent,
         alignItems: "center",
     },
     addBtnDisabled: {
@@ -1320,14 +1334,14 @@ const styles = StyleSheet.create({
     },
     addBtnText: {
         fontSize: sc(15),
-        color: "#ffffff",
+        color: C.accentText,
         fontWeight: "600",
     },
     // Browse mode
     browseSectionTitle: {
         fontSize: sc(14),
         fontWeight: "500",
-        color: "#111111",
+        color: C.text,
         marginBottom: 12,
     },
     categoryGrid: {
@@ -1338,7 +1352,7 @@ const styles = StyleSheet.create({
     },
     categoryCard: {
         width: "31%",
-        backgroundColor: "#F8F8F8",
+        backgroundColor: C.surfaceStrong,
         borderRadius: 20,
         paddingVertical: 12,
         alignItems: "center",
@@ -1351,19 +1365,19 @@ const styles = StyleSheet.create({
         marginTop: 6,
         fontSize: sc(12),
         fontWeight: "500",
-        color: "#333333",
+        color: C.text,
     },
     browseBackBtn: {
         marginBottom: 8,
     },
     browseBackText: {
         fontSize: sc(13),
-        color: "#999999",
+        color: C.muted,
     },
     browseCategoryTitle: {
         fontSize: sc(18),
         fontWeight: "600",
-        color: "#111111",
+        color: C.text,
         marginBottom: 4,
     },
     quickPickScroll: {
@@ -1375,20 +1389,20 @@ const styles = StyleSheet.create({
         paddingEnd: 40,
     },
     quickPickChip: {
-        backgroundColor: "#F4F5F7",
+        backgroundColor: C.surfaceStrong,
         borderRadius: 20,
         paddingHorizontal: 14,
         paddingVertical: 10,
     },
     quickPickChipSelected: {
-        backgroundColor: "#2a5a2a",
+        backgroundColor: C.accent,
     },
     quickPickChipText: {
         fontSize: sc(14),
-        color: "#111111",
+        color: C.secondary,
     },
     quickPickChipTextSelected: {
-        color: "#ffffff",
+        color: C.accentText,
         fontWeight: "600",
     },
     customInputLink: {
@@ -1397,7 +1411,7 @@ const styles = StyleSheet.create({
     },
     customInputLinkText: {
         fontSize: sc(14),
-        color: "#2a5a2a",
+        color: C.accent,
         fontWeight: "500",
     },
     // Stock Pantry Sheet
@@ -1408,12 +1422,12 @@ const styles = StyleSheet.create({
     stockTitle: {
         fontSize: sc(22),
         fontWeight: "700",
-        color: "#111111",
+        color: C.text,
         marginBottom: 6,
     },
     stockSubtitle: {
         fontSize: sc(14),
-        color: "#999999",
+        color: C.muted,
         marginBottom: 20,
     },
     stockCategoriesScroll: {
@@ -1425,7 +1439,7 @@ const styles = StyleSheet.create({
         gap: 10,
     },
     stockCategoryCard: {
-        backgroundColor: "#F8F8F8",
+        backgroundColor: C.surfaceStrong,
         borderRadius: 18,
         padding: 14,
         alignItems: "center",
@@ -1439,16 +1453,16 @@ const styles = StyleSheet.create({
     stockCategoryLabel: {
         fontSize: sc(12),
         fontWeight: "500",
-        color: "#333333",
+        color: C.secondary,
         marginBottom: 2,
     },
     stockCategoryCount: {
         fontSize: sc(14),
         fontWeight: "700",
-        color: "#2a5a2a",
+        color: C.accent,
     },
     stockButton: {
-        backgroundColor: "#2a5a2a",
+        backgroundColor: C.accent,
         borderRadius: 999,
         paddingHorizontal: 40,
         paddingVertical: 16,
@@ -1461,7 +1475,7 @@ const styles = StyleSheet.create({
     stockButtonText: {
         fontSize: sc(16),
         fontWeight: "600",
-        color: "#ffffff",
+        color: C.accentText,
     },
     stockDismiss: {
         marginTop: 16,
@@ -1469,6 +1483,6 @@ const styles = StyleSheet.create({
     },
     stockDismissText: {
         fontSize: sc(14),
-        color: "#999999",
+        color: C.muted,
     },
 });

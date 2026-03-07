@@ -10,7 +10,9 @@ import { useTranslation } from "react-i18next";
 import BottomSheetModal from "../BottomSheetModal";
 import { useSubscriptionStore } from "../../store";
 import { sc } from "../../utils/deviceScale";
-import { SOLBITE_PUMP_URL } from "../../constants/solana";
+import { SOLBITE_PUMP_URL, SOLBITE_PRO_THRESHOLD, SOLBITE_DECIMALS } from "../../constants/solana";
+
+const PRO_DISPLAY_AMOUNT = (SOLBITE_PRO_THRESHOLD / Math.pow(10, SOLBITE_DECIMALS)).toLocaleString();
 
 const C = {
   bg: "#F4F5F7",
@@ -48,7 +50,7 @@ export default function SolbiteGateSheet({ visible, onClose, featureName }) {
         <View style={styles.infoCard}>
           <Text style={styles.infoHeading}>{t("gate.howToUnlock", "How to unlock Pro")}</Text>
           <Text style={styles.infoBody}>
-            {t("gate.holdSolbite", "Hold 1,000+ SOLBITE tokens in your connected wallet. Pro status is checked automatically.")}
+            {t("gate.holdSolbite", { threshold: PRO_DISPLAY_AMOUNT, defaultValue: `Hold ${PRO_DISPLAY_AMOUNT}+ SOLBITE tokens in your connected wallet. Pro status is checked automatically.` })}
           </Text>
         </View>
 

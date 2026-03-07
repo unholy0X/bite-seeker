@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii, spacing } from '@/src/theme/tokens';
@@ -13,7 +14,11 @@ type RecipeCardItemProps = {
 export function RecipeCardItem({ onPress, recipe }: RecipeCardItemProps) {
   return (
     <Pressable onPress={() => onPress?.(recipe.id)} style={styles.card}>
-      <RecipeImagePlaceholder alt={recipe.imageAlt} label={recipe.placeholderLabel} tint={recipe.tint} />
+      {recipe.thumbnailUrl ? (
+        <Image contentFit="cover" source={{ uri: recipe.thumbnailUrl }} style={styles.image} />
+      ) : (
+        <RecipeImagePlaceholder alt={recipe.imageAlt} label={recipe.placeholderLabel} tint={recipe.tint} />
+      )}
       <View style={styles.body}>
         <Text style={styles.title}>{recipe.title}</Text>
         <Text style={styles.meta}>{recipe.meta}</Text>
@@ -26,6 +31,10 @@ const styles = StyleSheet.create({
   body: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.sm,
+  },
+  image: {
+    height: 120,
+    width: '100%',
   },
   card: {
     backgroundColor: colors.surface,

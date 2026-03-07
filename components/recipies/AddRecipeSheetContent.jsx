@@ -1,14 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  Pressable,
-  TextInput,
-} from "react-native";
+import { View, Text, StyleSheet, Image, Pressable, TextInput } from "react-native";
 import { sc } from "../../utils/deviceScale";
-import { BlurView } from "expo-blur";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon";
 import LinkIcon from "../icons/LinkIcon";
 import SparkleBadgeIcon from "../icons/SparkleBadgeIcon";
@@ -20,51 +12,36 @@ import SolbiteGateSheet from "../paywall/SolbiteGateSheet";
 import { useTranslation } from "react-i18next";
 import { useSolbitePayment } from "../../utils/useSolbitePayment";
 
+const C = {
+  bg: "#0E131D",
+  surface: "#121722",
+  surfaceStrong: "#1B202C",
+  border: "rgba(255,255,255,0.06)",
+  accent: "#B6FF00",
+  accentText: "#0B0E14",
+  text: "#F3F5F8",
+  secondary: "#9AA0AE",
+  muted: "#7A808F",
+  divider: "rgba(255,255,255,0.08)",
+  error: "#FF6B6B",
+};
+
 export default function AddRecipeSheetContent({ onPressBack }) {
   const router = useRouter();
-  const {
-    url,
-    setUrl,
-    startExtraction,
-    startImageExtraction,
-    reset,
-    status,
-    progress,
-    error,
-    isRunning,
-    recipe,
-  } = useExtractStore();
-
+  const { url, setUrl, startExtraction, startImageExtraction, reset, status, progress, error, isRunning, recipe } = useExtractStore();
   const [capturedImages, setCapturedImages] = useState([]);
   const [paywallVisible, setPaywallVisible] = useState(false);
   const { t } = useTranslation("recipe");
-
   const entitlement = useSubscriptionStore((s) => s.entitlement);
   const isPro = entitlement === "pro" || entitlement === "admin";
   const { payForExtraction, isPaying } = useSolbitePayment();
-
-  // Pending extraction to run after payment completes
   const pendingExtraction = useRef(null);
 
-  const handleBack = () => {
-    setCapturedImages([]);
-    reset();
-    onPressBack();
-  };
-
-  const handleTryAnother = () => {
-    setCapturedImages([]);
-    reset();
-  };
+  const handleBack = () => { setCapturedImages([]); reset(); onPressBack(); };
+  const handleTryAnother = () => { setCapturedImages([]); reset(); };
 
   const runExtractFromPhotos = useCallback(async (txSignature) => {
-    startImageExtraction({
-      images: capturedImages.map((img) => ({
-        base64: img.base64,
-        mimeType: img.mimeType,
-      })),
-      txSignature,
-    });
+    startImageExtraction({ images: capturedImages.map((img) => ({ base64: img.base64, mimeType: img.mimeType })), txSignature });
   }, [capturedImages, startImageExtraction]);
 
   const runExtractFromUrl = useCallback(async (txSignature) => {
@@ -72,19 +49,13 @@ export default function AddRecipeSheetContent({ onPressBack }) {
   }, [startExtraction]);
 
   const withPaymentGate = useCallback(async (extractFn) => {
-    if (isPro) {
-      extractFn(undefined);
-      return;
-    }
-    // Free user — pay first
     pendingExtraction.current = extractFn;
     try {
-      const txSig = await payForExtraction();
+      const txSig = await payForExtraction(isPro);
       pendingExtraction.current = null;
       extractFn(txSig);
     } catch {
       pendingExtraction.current = null;
-      // payForExtraction sets payError internally; user sees alert via useSolbitePayment
     }
   }, [isPro, payForExtraction]);
 
@@ -93,104 +64,63 @@ export default function AddRecipeSheetContent({ onPressBack }) {
     withPaymentGate(runExtractFromPhotos);
   }, [capturedImages, withPaymentGate, runExtractFromPhotos]);
 
-  // Quota exceeded view
+  const BackButton = ({ label }) => (
+    <Pressable onPress={handleBack} style={styles.backPill}>
+      <ArrowLeftIcon width={9} height={8} color={C.secondary} />
+      <Text style={styles.backText}>{label}</Text>
+    </Pressable>
+  );
+
+  // Quota exceeded
   if (error === "QUOTA_EXCEEDED") {
     return (
       <View style={styles.container}>
         <View style={styles.headerRow}>
-          <Pressable onPress={handleBack}>
-            <BlurView intensity={100} tint="light" style={styles.backPill}>
-              <ArrowLeftIcon width={9} height={8} color="#555555" />
-              <Text style={styles.backText}>{t("add.back", "Back")}</Text>
-            </BlurView>
-          </Pressable>
+          <BackButton label={t("add.back", "Back")} />
           <Text style={styles.headerTitle}>{t("add.title", "Add a recipe")}</Text>
           <View style={styles.headerSpacer} />
         </View>
-
         <View style={styles.quotaIconWrap}>
           <Text style={styles.quotaIcon}>🔒</Text>
         </View>
-
         <Text style={styles.quotaTitle}>{t("add.monthlyLimit", "Monthly limit reached")}</Text>
-        <Text style={styles.quotaSubtitle}>
-          {t("add.monthlyLimitSubtitle", "You've used all your free extractions this month.")}
-        </Text>
-
-        <Pressable
-          style={styles.upgradeButton}
-          onPress={() => setPaywallVisible(true)}
-        >
-          <Text style={styles.upgradeButtonText}>{t("add.upgradePro", "Upgrade to Pro")}</Text>
+        <Text style={styles.quotaSubtitle}>{t("add.monthlyLimitSubtitle", "You've used all your free extractions this month.")}</Text>
+        <Pressable style={styles.primaryButton} onPress={() => setPaywallVisible(true)}>
+          <Text style={styles.primaryText}>{t("add.upgradePro", "Upgrade to Pro")}</Text>
         </Pressable>
-
-        <Text style={styles.quotaHint}>
-          {t("add.quotaHint", "No limits on extractions, pantry scans & more")}
-        </Text>
-
+        <Text style={styles.quotaHint}>{t("add.quotaHint", "No limits on extractions, pantry scans & more")}</Text>
         <Text style={styles.quotaReset}>{t("add.quotaReset", "Resets next month")}</Text>
-
-        <SolbiteGateSheet
-          visible={paywallVisible}
-          onClose={() => setPaywallVisible(false)}
-          featureName="extraction_limit"
-        />
+        <SolbiteGateSheet visible={paywallVisible} onClose={() => setPaywallVisible(false)} featureName="extraction_limit" />
       </View>
     );
   }
 
-  // Success preview after completion
+  // Success
   if (recipe && status === "completed") {
     const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
     const ingredientCount = recipe.ingredients?.length || 0;
     const instructionCount = recipe.instructions?.length || recipe.steps?.length || 0;
-
     return (
       <View style={styles.container}>
         <View style={styles.headerRow}>
-          <Pressable onPress={handleBack}>
-            <BlurView intensity={100} tint="light" style={styles.backPill}>
-              <ArrowLeftIcon width={9} height={8} color="#555555" />
-              <Text style={styles.backText}>{t("add.back", "Back")}</Text>
-            </BlurView>
-          </Pressable>
+          <BackButton label={t("add.back", "Back")} />
           <Text style={styles.headerTitle}>{t("add.recipeReady", "Recipe ready!")}</Text>
           <View style={styles.headerSpacer} />
         </View>
 
         <View style={styles.successIconWrap}>
-          <Text style={styles.successIcon}>{"\u2713"}</Text>
+          <Text style={styles.successIcon}>✓</Text>
         </View>
-
         <Text style={styles.recipeTitle}>{recipe.title}</Text>
-
         {recipe.description ? (
-          <Text style={styles.recipeDescription} numberOfLines={3}>
-            {recipe.description}
-          </Text>
+          <Text style={styles.recipeDescription} numberOfLines={3}>{recipe.description}</Text>
         ) : null}
 
         <View style={styles.metaRow}>
-          {totalTime > 0 && (
-            <View style={styles.metaPill}>
-              <Text style={styles.metaPillText}>{totalTime} {t("add.min", "min")}</Text>
-            </View>
-          )}
-          {recipe.servings ? (
-            <View style={styles.metaPill}>
-              <Text style={styles.metaPillText}>{recipe.servings} {t("add.servings", "servings")}</Text>
-            </View>
-          ) : null}
-          {recipe.difficulty ? (
-            <View style={styles.metaPill}>
-              <Text style={[styles.metaPillText, { textTransform: "capitalize" }]}>{t(`difficulty.${recipe.difficulty.toLowerCase()}`, { ns: "recipe", defaultValue: recipe.difficulty })}</Text>
-            </View>
-          ) : null}
-          {recipe.cuisine ? (
-            <View style={[styles.metaPill, { backgroundColor: "#DFF7C4" }]}>
-              <Text style={[styles.metaPillText, { color: "#385225" }]}>{recipe.cuisine}</Text>
-            </View>
-          ) : null}
+          {totalTime > 0 && <View style={styles.metaPill}><Text style={styles.metaPillText}>{totalTime} {t("add.min", "min")}</Text></View>}
+          {recipe.servings ? <View style={styles.metaPill}><Text style={styles.metaPillText}>{recipe.servings} {t("add.servings", "servings")}</Text></View> : null}
+          {recipe.difficulty ? <View style={styles.metaPill}><Text style={styles.metaPillText}>{recipe.difficulty}</Text></View> : null}
+          {recipe.cuisine ? <View style={[styles.metaPill, styles.metaPillAccent]}><Text style={[styles.metaPillText, styles.metaPillTextAccent]}>{recipe.cuisine}</Text></View> : null}
         </View>
 
         <View style={styles.countsCard}>
@@ -211,96 +141,65 @@ export default function AddRecipeSheetContent({ onPressBack }) {
               <View key={idx} style={styles.ingredientRow}>
                 <View style={styles.ingredientDot} />
                 <Text style={styles.ingredientText} numberOfLines={1}>
-                  {ing.quantity && ing.unit ? `${ing.quantity} ${ing.unit} ` : ""}
-                  {ing.name}
+                  {ing.quantity && ing.unit ? `${ing.quantity} ${ing.unit} ` : ""}{ing.name}
                 </Text>
               </View>
             ))}
-            {ingredientCount > 4 && (
-              <Text style={styles.moreText}>
-                +{ingredientCount - 4} {t("add.more", "more")}
-              </Text>
-            )}
+            {ingredientCount > 4 && <Text style={styles.moreText}>+{ingredientCount - 4} {t("add.more", "more")}</Text>}
           </View>
         )}
 
-        <Text style={styles.savedConfirmation}>
-          {t("add.savedToBox", "✓ Saved to your recipe box")}
-        </Text>
-
+        <Text style={styles.savedConfirmation}>{t("add.savedToBox", "✓ Saved to your recipe box")}</Text>
         <Pressable
-          style={({ pressed }) => [styles.viewRecipeButton, pressed && styles.viewRecipeButtonPressed]}
-          onPress={() => {
-            onPressBack();
-            router.push(`/recipe/${recipe.id}`);
-          }}
+          style={({ pressed }) => [styles.primaryButton, pressed && { opacity: 0.85 }]}
+          onPress={() => { onPressBack(); router.push(`/recipe/${recipe.id}`); }}
         >
-          <Text style={styles.viewRecipeText}>{t("add.viewRecipe", "View Recipe")}</Text>
+          <Text style={styles.primaryText}>{t("add.viewRecipe", "View Recipe")}</Text>
         </Pressable>
-
-        <Pressable style={styles.tryAnotherButton} onPress={handleTryAnother}>
-          <Text style={styles.tryAnotherText}>{t("add.addAnother", "Add another recipe")}</Text>
+        <Pressable style={styles.secondaryButton} onPress={handleTryAnother}>
+          <Text style={styles.secondaryText}>{t("add.addAnother", "Add another recipe")}</Text>
         </Pressable>
       </View>
     );
   }
 
-  // Progress view
+  // Progress
   if (isRunning) {
     return (
       <View style={styles.container}>
         <View style={styles.headerRow}>
-          <Pressable onPress={handleBack}>
-            <BlurView intensity={100} tint="light" style={styles.backPill}>
-              <ArrowLeftIcon width={9} height={8} color="#555555" />
-              <Text style={styles.backText}>{t("add.cancel", "Cancel")}</Text>
-            </BlurView>
-          </Pressable>
+          <BackButton label={t("add.cancel", "Cancel")} />
           <Text style={styles.headerTitle}>{t("add.cookingTitle", "Cooking it up")}</Text>
           <View style={styles.headerSpacer} />
         </View>
-
         <ExtractionProgress progress={progress} />
       </View>
     );
   }
 
-  // Default: Input form
+  // Default: input form
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
-        <Pressable onPress={handleBack}>
-          <BlurView intensity={100} tint="light" style={styles.backPill}>
-            <ArrowLeftIcon width={9} height={8} color="#555555" />
-            <Text style={styles.backText}>{t("add.back", "Back")}</Text>
-          </BlurView>
-        </Pressable>
+        <BackButton label={t("add.back", "Back")} />
         <Text style={styles.headerTitle}>{t("add.title", "Add a recipe")}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
-      <Image
-        source={require("../../assets/AddRecipie.png")}
-        style={styles.heroImage}
-        resizeMode="contain"
-      />
-
+      <Image source={require("../../assets/AddRecipie.png")} style={styles.heroImage} resizeMode="contain" />
       <Text style={styles.title}>{t("add.addNew", "Add a new recipe")}</Text>
       <Text style={styles.subtitle}>
         {t("add.subtitle", "Paste a link from YouTube or any recipe website and we'll do the rest")}
       </Text>
 
       <View style={styles.inputWrap}>
-        <LinkIcon width={20} height={20} color={url ? "#385225" : "#B4B4B4"} />
+        <LinkIcon width={20} height={20} color={url ? C.accent : C.muted} />
         <TextInput
           placeholder={t("add.urlPlaceholder", "https://youtube.com/watch?v=...")}
-          placeholderTextColor="#B4B4B4"
+          placeholderTextColor={C.muted}
           style={styles.input}
           value={url}
-          onChangeText={(text) => {
-            setUrl(text);
-            if (error) useExtractStore.setState({ error: "" });
-          }}
+          onChangeText={(text) => { setUrl(text); if (error) useExtractStore.setState({ error: "" }); }}
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="url"
@@ -308,10 +207,7 @@ export default function AddRecipeSheetContent({ onPressBack }) {
       </View>
 
       <Pressable
-        style={[
-          styles.primaryButton,
-          (!url.trim() || isRunning) && styles.primaryButtonDisabled,
-        ]}
+        style={[styles.primaryButton, (!url.trim() || isRunning) && styles.primaryButtonDisabled]}
         onPress={() => withPaymentGate(runExtractFromUrl)}
         disabled={!url.trim() || isRunning || isPaying}
       >
@@ -340,9 +236,7 @@ export default function AddRecipeSheetContent({ onPressBack }) {
       {capturedImages.length > 0 && !isRunning && (
         <Pressable style={styles.primaryButton} onPress={handleExtractFromPhotos}>
           <SparkleBadgeIcon width={22} height={22} />
-          <Text style={styles.primaryText}>
-            {t("add.extractPhotos", { count: capturedImages.length })}
-          </Text>
+          <Text style={styles.primaryText}>{t("add.extractPhotos", { count: capturedImages.length })}</Text>
         </Pressable>
       )}
     </View>
@@ -350,309 +244,82 @@ export default function AddRecipeSheetContent({ onPressBack }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    paddingBottom: 20,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
+  container: { paddingBottom: 20 },
+  headerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   backPill: {
-    borderWidth: 1,
-    borderColor: "#ffffff",
-    borderRadius: 999,
-    overflow: "hidden",
-    backgroundColor: "rgba(0, 0, 0, 0.15)",
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    flexDirection: "row", alignItems: "center",
+    backgroundColor: C.surfaceStrong, borderWidth: 1, borderColor: C.border,
+    borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8,
   },
-  backText: {
-    marginStart: 8,
-    fontSize: sc(12),
-    color: "#555555",
-  },
-  headerTitle: {
-    fontSize: sc(22),
-    fontWeight: "normal",
-    color: "#000",
-    letterSpacing: -0.05,
-  },
-  headerSpacer: {
-    width: 56,
-  },
-  heroImage: {
-    width: "100%",
-    height: 130,
-    marginTop: 44,
-  },
-  title: {
-    marginTop: 10,
-    fontSize: sc(26),
-    fontWeight: "normal",
-    color: "#000",
-    textAlign: "center",
-    letterSpacing: -0.05,
-  },
-  subtitle: {
-    marginTop: 8,
-    fontSize: sc(14),
-    color: "#B4B4B4",
-    textAlign: "center",
-    lineHeight: sc(20),
-    letterSpacing: -0.05,
-    paddingHorizontal: 20,
-  },
+  backText: { marginStart: 8, fontSize: sc(12), color: C.secondary },
+  headerTitle: { fontSize: sc(16), fontWeight: "600", color: C.text, letterSpacing: -0.2 },
+  headerSpacer: { width: 56 },
+
+  heroImage: { width: "100%", height: 130, marginTop: 44 },
+  title: { marginTop: 10, fontSize: sc(26), fontWeight: "700", color: C.text, textAlign: "center", letterSpacing: -0.4 },
+  subtitle: { marginTop: 8, fontSize: sc(14), color: C.muted, textAlign: "center", lineHeight: sc(20), paddingHorizontal: 20 },
+
   inputWrap: {
-    marginTop: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    marginTop: 16, flexDirection: "row", alignItems: "center",
+    backgroundColor: C.surfaceStrong, borderWidth: 1, borderColor: C.border,
+    borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6,
   },
-  input: {
-    marginStart: 10,
-    flex: 1,
-    color: "#111111",
-  },
+  input: { marginStart: 10, flex: 1, color: C.text, fontSize: sc(14) },
+
   primaryButton: {
-    marginTop: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#7FEF80",
-    borderRadius: 999,
-    paddingVertical: 12,
+    marginTop: 12, flexDirection: "row", alignItems: "center", justifyContent: "center",
+    backgroundColor: C.accent, borderRadius: 999, paddingVertical: 14,
   },
-  primaryButtonDisabled: {
-    backgroundColor: "#d9d9d9",
+  primaryButtonDisabled: { backgroundColor: C.surfaceStrong, opacity: 0.6 },
+  primaryText: { marginStart: 8, fontSize: sc(15), fontWeight: "700", color: C.accentText, letterSpacing: -0.2 },
+
+  secondaryButton: {
+    marginTop: 10, borderRadius: 999, paddingVertical: 13, alignItems: "center",
+    backgroundColor: C.surfaceStrong, borderWidth: 1, borderColor: C.border,
   },
-  primaryText: {
-    marginStart: 8,
-    fontSize: sc(14),
-    fontWeight: "600",
-    color: "#385225",
-    letterSpacing: -0.05,
-  },
-  errorText: {
-    marginTop: 8,
-    fontSize: sc(12),
-    color: "#cc3b3b",
-    textAlign: "center",
-  },
-  dividerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 16,
-  },
-  divider: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#DFDFDF",
-  },
-  dividerText: {
-    marginHorizontal: 10,
-    fontSize: sc(12),
-    color: "#B4B4B4",
-  },
-  // Preview styles
+  secondaryText: { fontSize: sc(14), fontWeight: "500", color: C.secondary },
+
+  errorText: { marginTop: 8, fontSize: sc(12), color: C.error, textAlign: "center" },
+
+  dividerRow: { flexDirection: "row", alignItems: "center", marginVertical: 16 },
+  divider: { flex: 1, height: 1, backgroundColor: C.divider },
+  dividerText: { marginHorizontal: 10, fontSize: sc(12), color: C.muted },
+
+  // Success
   successIconWrap: {
-    alignSelf: "center",
-    marginTop: 20,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: "#DFF7C4",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
+    alignSelf: "center", marginTop: 20, width: 56, height: 56, borderRadius: 28,
+    backgroundColor: C.surfaceStrong, borderWidth: 1, borderColor: C.accent,
+    alignItems: "center", justifyContent: "center", marginBottom: 12,
   },
-  successIcon: {
-    fontSize: 28,
-    color: "#385225",
-    fontWeight: "bold",
-  },
-  recipeTitle: {
-    fontSize: sc(22),
-    fontWeight: "500",
-    color: "#111111",
-    textAlign: "center",
-    letterSpacing: -0.05,
-  },
-  recipeDescription: {
-    marginTop: 8,
-    fontSize: sc(14),
-    color: "#6b6b6b",
-    textAlign: "center",
-    lineHeight: sc(20),
-    paddingHorizontal: 10,
-  },
-  metaRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: 8,
-    marginTop: 14,
-  },
-  metaPill: {
-    backgroundColor: "#EAEAEA",
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-  },
-  metaPillText: {
-    fontSize: sc(12),
-    color: "#6b6b6b",
-  },
-  countsCard: {
-    marginTop: 16,
-    backgroundColor: "#ffffff",
-    borderRadius: 16,
-    padding: 14,
-  },
-  countRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 6,
-  },
-  countDivider: {
-    height: 1,
-    backgroundColor: "#F0F0F0",
-    marginVertical: 4,
-  },
-  countLabel: {
-    fontSize: sc(14),
-    color: "#6b6b6b",
-  },
-  countValue: {
-    fontSize: sc(14),
-    fontWeight: "600",
-    color: "#111111",
-  },
-  ingredientPreview: {
-    marginTop: 12,
-    backgroundColor: "#ffffff",
-    borderRadius: 16,
-    padding: 14,
-  },
-  ingredientRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 5,
-  },
-  ingredientDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#7FEF80",
-    marginEnd: 10,
-  },
-  ingredientText: {
-    fontSize: sc(14),
-    color: "#111111",
-    flex: 1,
-  },
-  moreText: {
-    marginTop: 6,
-    fontSize: sc(13),
-    color: "#B4B4B4",
-    textAlign: "center",
-  },
-  savedConfirmation: {
-    marginTop: 16,
-    fontSize: sc(13),
-    color: "#385225",
-    textAlign: "center",
-    fontWeight: "500",
-  },
-  viewRecipeButton: {
-    marginTop: 12,
-    backgroundColor: "#385225",
-    borderRadius: 999,
-    paddingVertical: 14,
-    alignItems: "center",
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  viewRecipeButtonPressed: {
-    opacity: 0.82,
-    shadowOpacity: 0.07,
-    elevation: 2,
-  },
-  viewRecipeText: {
-    fontSize: sc(15),
-    fontWeight: "600",
-    color: "#ffffff",
-    letterSpacing: -0.2,
-  },
-  tryAnotherButton: {
-    marginTop: 12,
-    borderRadius: 999,
-    paddingVertical: 12,
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-    borderWidth: 1,
-    borderColor: "#DFDFDF",
-  },
-  tryAnotherText: {
-    fontSize: sc(14),
-    fontWeight: "500",
-    color: "#6b6b6b",
-  },
-  // Quota exceeded styles
-  quotaIconWrap: {
-    alignSelf: "center",
-    marginTop: 40,
-    marginBottom: 16,
-  },
-  quotaIcon: {
-    fontSize: 48,
-  },
-  quotaTitle: {
-    fontSize: 22,
-    fontWeight: "600",
-    color: "#111111",
-    textAlign: "center",
-    letterSpacing: -0.2,
-  },
-  quotaSubtitle: {
-    marginTop: 8,
-    fontSize: 14,
-    color: "#6b6b6b",
-    textAlign: "center",
-    lineHeight: 20,
-    paddingHorizontal: 20,
-  },
-  upgradeButton: {
-    marginTop: 24,
-    backgroundColor: "#385225",
-    borderRadius: 999,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  upgradeButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#ffffff",
-  },
-  quotaHint: {
-    marginTop: 12,
-    fontSize: 13,
-    color: "#6b6b6b",
-    textAlign: "center",
-  },
-  quotaReset: {
-    marginTop: 24,
-    fontSize: 12,
-    color: "#B4B4B4",
-    textAlign: "center",
-  },
+  successIcon: { fontSize: 24, color: C.accent, fontWeight: "bold" },
+  recipeTitle: { fontSize: sc(22), fontWeight: "600", color: C.text, textAlign: "center", letterSpacing: -0.3 },
+  recipeDescription: { marginTop: 8, fontSize: sc(14), color: C.secondary, textAlign: "center", lineHeight: sc(20), paddingHorizontal: 10 },
+
+  metaRow: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: 8, marginTop: 14 },
+  metaPill: { backgroundColor: C.surfaceStrong, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 5 },
+  metaPillAccent: { backgroundColor: C.accent, opacity: 0.15 },
+  metaPillText: { fontSize: sc(12), color: C.secondary },
+  metaPillTextAccent: { color: C.accent },
+
+  countsCard: { marginTop: 16, backgroundColor: C.surfaceStrong, borderRadius: 16, padding: 14 },
+  countRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingVertical: 6 },
+  countDivider: { height: 1, backgroundColor: C.divider, marginVertical: 4 },
+  countLabel: { fontSize: sc(14), color: C.muted },
+  countValue: { fontSize: sc(14), fontWeight: "600", color: C.text },
+
+  ingredientPreview: { marginTop: 12, backgroundColor: C.surfaceStrong, borderRadius: 16, padding: 14 },
+  ingredientRow: { flexDirection: "row", alignItems: "center", paddingVertical: 5 },
+  ingredientDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: C.accent, marginEnd: 10 },
+  ingredientText: { fontSize: sc(14), color: C.text, flex: 1 },
+  moreText: { marginTop: 6, fontSize: sc(13), color: C.muted, textAlign: "center" },
+
+  savedConfirmation: { marginTop: 16, fontSize: sc(13), color: C.accent, textAlign: "center", fontWeight: "500" },
+
+  // Quota
+  quotaIconWrap: { alignSelf: "center", marginTop: 40, marginBottom: 16 },
+  quotaIcon: { fontSize: 48 },
+  quotaTitle: { fontSize: 22, fontWeight: "600", color: C.text, textAlign: "center", letterSpacing: -0.2 },
+  quotaSubtitle: { marginTop: 8, fontSize: 14, color: C.secondary, textAlign: "center", lineHeight: 20, paddingHorizontal: 20 },
+  quotaHint: { marginTop: 12, fontSize: 13, color: C.muted, textAlign: "center" },
+  quotaReset: { marginTop: 24, fontSize: 12, color: C.muted, textAlign: "center" },
 });

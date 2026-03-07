@@ -553,7 +553,7 @@ export default function NotificationCenter() {
       } else if (job.resultRecipeId) {
         router.push(`/recipe/${job.resultRecipeId}`);
       } else {
-        router.push("/recipies");
+        router.push("/recipes");
       }
     }, 350);
   }, [router]);

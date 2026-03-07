@@ -8,15 +8,14 @@ export type RecipeCard = {
   imageAlt: string;
   meta: string;
   placeholderLabel: string;
+  thumbnailUrl?: string | null;
   tint: string;
   title: string;
 };
 
 export const recipeFilters: RecipeFilter[] = [
   { id: 'all', label: 'All' },
-  { id: 'created', label: 'Created' },
-  { id: 'saved', label: 'Saved' },
-  { id: 'shared', label: 'Shared' },
+  { id: 'favorites', label: 'Favorites' },
 ];
 
 export const recipeCards: RecipeCard[] = [

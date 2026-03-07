@@ -6,14 +6,14 @@ import { useAuthStore } from '../store/authStore';
 import { requestNonce, verifyWallet } from '../services/api';
 
 /**
- * Orchestrates the full Dlishe wallet sign-in flow in a SINGLE MWA session:
+ * Orchestrates the full Bite Seeker wallet sign-in flow in a SINGLE MWA session:
  *   1. Authorize wallet (get public key + address)
  *   2. Fetch nonce from backend
  *   3. Sign nonce message with wallet
  *   4. Verify signature with backend → receive JWT
  *   5. Persist JWT in SecureStore via authStore
  */
-export function useDlisheAuth() {
+export function useBiteSeekerAuth() {
   const { authorizeSession } = useAuthorization();
   const setToken = useAuthStore((s) => s.setToken);
   const clearToken = useAuthStore((s) => s.clearToken);

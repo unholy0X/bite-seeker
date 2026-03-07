@@ -1,5 +1,5 @@
 {
-  "title": "Débloquer Dlishe Pro",
+  "title": "Débloquer Bite Seeker Pro",
   "subtitle": {
     "default": "Débloquez des fonctionnalités supplémentaires et supprimez les limites d'utilisation",
     "extraction_limit": "Vous avez atteint votre limite d'extractions gratuites ce mois-ci",
@@ -54,6 +54,15 @@
   "restoreFailed": {
     "title": "Échec de la restauration",
     "message": "Une erreur s'est produite."
+  },
+  "gate": {
+    "title": "Fonctionnalité Pro",
+    "featureRequires": "\"{{feature}}\" nécessite un accès Pro.",
+    "howToUnlock": "Comment débloquer le Pro",
+    "holdSolbite": "Détenez {{threshold}}+ jetons SOLBITE dans votre portefeuille connecté. Le statut Pro est vérifié automatiquement.",
+    "currentStatus": "Statut actuel : Niveau gratuit",
+    "getSolbite": "Obtenir SOLBITE sur pump.fun",
+    "maybeLater": "Peut-être plus tard"
   },
   "terms": {
     "ios": "Le paiement sera débité de votre compte Apple ID lors de la confirmation d'achat. L'abonnement se renouvelle automatiquement sauf annulation au moins 24 heures avant la fin de la période en cours. Vous pouvez gérer et annuler vos abonnements dans les paramètres de votre compte App Store.",

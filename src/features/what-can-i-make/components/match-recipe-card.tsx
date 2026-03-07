@@ -1,9 +1,20 @@
+import { Image } from 'expo-image';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, radii, spacing } from '@/src/theme/tokens';
 
-import type { MatchRecipe } from '../data/what-can-i-make-content';
 import { MatchBadge } from './match-badge';
+
+type MatchRecipe = {
+  id: string;
+  imageAlt: string;
+  matchPercent: number;
+  meta: string;
+  missingInfo: string;
+  title: string;
+  tone: 'brown' | 'green' | 'blue';
+  thumbnailUrl?: string | null;
+};
 
 type MatchRecipeCardProps = {
   onPress?: (recipeId: string) => void;
@@ -19,11 +30,15 @@ const toneColor = {
 export function MatchRecipeCard({ onPress, recipe }: MatchRecipeCardProps) {
   return (
     <Pressable onPress={() => onPress?.(recipe.id)} style={styles.card}>
-      <View style={[styles.imageWrap, { backgroundColor: toneColor[recipe.tone] }]}> 
+      <View style={styles.imageContainer}>
+        {recipe.thumbnailUrl ? (
+          <Image contentFit="cover" source={{ uri: recipe.thumbnailUrl }} style={styles.thumb} />
+        ) : (
+          <View style={[styles.imageWrap, { backgroundColor: toneColor[recipe.tone] }]}>
+            <Text style={styles.imageInitial}>{recipe.title?.charAt(0) ?? '?'}</Text>
+          </View>
+        )}
         <MatchBadge value={recipe.matchPercent} />
-        <View accessibilityLabel={recipe.imageAlt} accessibilityRole="image" accessible style={styles.imageBadge}>
-          <Text style={styles.imageText}>Image</Text>
-        </View>
       </View>
 
       <View style={styles.content}>
@@ -48,28 +63,25 @@ const styles = StyleSheet.create({
   content: {
     marginLeft: spacing.md,
   },
-  imageBadge: {
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.16)',
-    borderRadius: radii.full,
-    height: 38,
-    justifyContent: 'center',
-    width: 38,
+  imageContainer: {
+    position: 'relative',
   },
-  imageText: {
-    color: colors.textPrimary,
-    fontSize: 8,
+  imageInitial: {
+    color: colors.accent,
+    fontSize: 22,
     fontWeight: '700',
-    letterSpacing: 0.2,
-    textTransform: 'uppercase',
   },
   imageWrap: {
     alignItems: 'center',
     borderRadius: radii.md,
-    height: 92 / 2,
+    height: 64,
     justifyContent: 'center',
-    position: 'relative',
-    width: 92 / 2,
+    width: 64,
+  },
+  thumb: {
+    borderRadius: radii.md,
+    height: 64,
+    width: 64,
   },
   ingredientsInfo: {
     color: '#22C091',

@@ -4,7 +4,7 @@ import { getLocales } from "expo-localization";
 import i18n from "../i18n";
 import { updatePreferences } from "../services/user";
 
-const STORAGE_KEY = "dlishe_language";
+const STORAGE_KEY = "biteseeker_language";
 const SUPPORTED = ["en", "fr", "ar"];
 
 function detectDeviceLanguage() {

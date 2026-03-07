@@ -1,14 +1,18 @@
 import { Feather } from '@expo/vector-icons';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
 import { colors, radii, spacing } from '@/src/theme/tokens';
 
-export function SearchInput() {
+type SearchInputProps = {
+  onPress?: () => void;
+};
+
+export function SearchInput({ onPress }: SearchInputProps) {
   return (
-    <View style={styles.container}>
+    <Pressable style={({ pressed }) => [styles.container, pressed && { opacity: 0.75 }]} onPress={onPress}>
       <Feather color={colors.textMuted} name="search" size={18} />
       <Text style={styles.placeholder}>Search recipes, ingredients...</Text>
-    </View>
+    </Pressable>
   );
 }
 

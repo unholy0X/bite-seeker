@@ -17,12 +17,7 @@
         "EXPO_PUBLIC_SOLBITE_PRO_THRESHOLD": "1000000000",
         "EXPO_PUBLIC_SOLBITE_EXTRACTION_COST": "100000000",
         "EXPO_PUBLIC_SOLBITE_PUMP_URL": "https://pump.fun/coin/FaqYPyaatHB5jtG9HJDu7r1w1NxF4okFMrW34DyQpump",
-        "EXPO_PUBLIC_APP_URI": "https://dlishe.com",
-        "EXPO_PUBLIC_DEMO_EMAIL": "appreviewer@dlishe.com",
-        "EXPO_PUBLIC_DEMO_PASSWORD": "DlisheReview2026!",
-        "EXPO_PUBLIC_DEMO_EMAIL_2": "dlishatest@gmail.com",
-        "EXPO_PUBLIC_DEMO_PASSWORD_2": "dlishatest2026",
-        "EXPO_PUBLIC_DEMO_TOKEN": "dlishe_demo_7f3a9c2e8b5d1f4a6c0e3b7d9f2a5c8e1b4d7f0a3c6e9b2"
+        "EXPO_PUBLIC_APP_URI": "https://biteseeker.app"
       }
     },
     "preview": {
@@ -40,12 +35,7 @@
         "EXPO_PUBLIC_SOLBITE_PRO_THRESHOLD": "1000000000",
         "EXPO_PUBLIC_SOLBITE_EXTRACTION_COST": "100000000",
         "EXPO_PUBLIC_SOLBITE_PUMP_URL": "https://pump.fun/coin/FaqYPyaatHB5jtG9HJDu7r1w1NxF4okFMrW34DyQpump",
-        "EXPO_PUBLIC_APP_URI": "https://dlishe.com",
-        "EXPO_PUBLIC_DEMO_EMAIL": "appreviewer@dlishe.com",
-        "EXPO_PUBLIC_DEMO_PASSWORD": "DlisheReview2026!",
-        "EXPO_PUBLIC_DEMO_EMAIL_2": "dlishatest@gmail.com",
-        "EXPO_PUBLIC_DEMO_PASSWORD_2": "dlishatest2026",
-        "EXPO_PUBLIC_DEMO_TOKEN": "dlishe_demo_7f3a9c2e8b5d1f4a6c0e3b7d9f2a5c8e1b4d7f0a3c6e9b2"
+        "EXPO_PUBLIC_APP_URI": "https://biteseeker.app"
       }
     },
     "production": {
@@ -59,12 +49,7 @@
         "EXPO_PUBLIC_SOLBITE_PRO_THRESHOLD": "1000000000",
         "EXPO_PUBLIC_SOLBITE_EXTRACTION_COST": "100000000",
         "EXPO_PUBLIC_SOLBITE_PUMP_URL": "https://pump.fun/coin/FaqYPyaatHB5jtG9HJDu7r1w1NxF4okFMrW34DyQpump",
-        "EXPO_PUBLIC_APP_URI": "https://dlishe.com",
-        "EXPO_PUBLIC_DEMO_EMAIL": "appreviewer@dlishe.com",
-        "EXPO_PUBLIC_DEMO_PASSWORD": "DlisheReview2026!",
-        "EXPO_PUBLIC_DEMO_EMAIL_2": "dlishatest@gmail.com",
-        "EXPO_PUBLIC_DEMO_PASSWORD_2": "dlishatest2026",
-        "EXPO_PUBLIC_DEMO_TOKEN": "dlishe_demo_7f3a9c2e8b5d1f4a6c0e3b7d9f2a5c8e1b4d7f0a3c6e9b2"
+        "EXPO_PUBLIC_APP_URI": "https://biteseeker.app"
       }
     }
   },

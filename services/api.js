@@ -1,4 +1,3 @@
-import { useDemoStore } from "../store/demoStore";
 import i18n from "../i18n";
 
 const API_BASE_URL =
@@ -50,30 +49,8 @@ export async function apiFetch(path, { token, timeout = DEFAULT_TIMEOUT, ...opti
 
 /**
  * Authenticated fetch — reads JWT from authStore automatically.
- * In demo mode the static demo token is used instead.
- *
- * Old signature: authFetch(path, getToken, options)
- * New signature: authFetch(path, options)
- *
- * Both forms are supported for backwards-compatibility during migration.
  */
-export async function authFetch(path, optionsOrGetToken = {}, legacyOptions = {}) {
-  // Resolve options from either call signature:
-  // Old: authFetch(path, getTokenFn, options)     → use legacyOptions
-  // Old: authFetch(path, undefined, options)       → use legacyOptions (getToken unavailable)
-  // New: authFetch(path, options)                  → use optionsOrGetToken
-  const opts =
-    typeof optionsOrGetToken === "function" || Object.keys(legacyOptions).length > 0
-      ? legacyOptions
-      : optionsOrGetToken;
-
-  // Demo mode — bypass JWT entirely
-  const demoState = useDemoStore.getState();
-  if (demoState.isDemoMode) {
-    return apiFetch(path, { token: demoState.getToken(), ...opts });
-  }
-
-  // Read token from authStore (lazy import to avoid circular dependency)
+export async function authFetch(path, options = {}) {
   const { useAuthStore } = require("../store/authStore");
   const token = useAuthStore.getState().token;
 
@@ -81,7 +58,7 @@ export async function authFetch(path, optionsOrGetToken = {}, legacyOptions = {}
     throw new Error(i18n.t("errors:session"));
   }
 
-  return apiFetch(path, { token, ...opts });
+  return apiFetch(path, { token, ...options });
 }
 
 export async function requestNonce(wallet) {

@@ -19,7 +19,7 @@ import LogoutIcon from "../icons/LogoutIcon";
 import TrashIcon from "../icons/TrashIcon";
 import CrownIcon from "../icons/CrownIcon";
 import { FOOD_AVATARS, AVATAR_COLORS } from "../avatars/FoodAvatars";
-import { useUserStore, useSubscriptionStore, useDemoStore } from "../../store";
+import { useUserStore, useSubscriptionStore } from "../../store";
 import { useLanguageStore } from "../../store/languageStore";
 import { useAuthStore } from "../../store/authStore";
 import SolbiteGateSheet from "../paywall/SolbiteGateSheet";
@@ -83,11 +83,6 @@ export default function ProfileName({ subtitle = "Your kitchen awaits", rightSlo
 
   const handleSignOut = async () => {
     setOpen(false);
-    if (useDemoStore.getState().isDemoMode) {
-      await useDemoStore.getState().deactivate();
-      router.replace("/");
-      return;
-    }
     try {
       await useAuthStore.getState().clearToken();
       router.replace("/");
@@ -266,14 +261,14 @@ export default function ProfileName({ subtitle = "Your kitchen awaits", rightSlo
             <View style={styles.legalRow}>
               <Pressable
                 style={styles.legalLinkWrap}
-                onPress={() => Linking.openURL("https://dlishe.com/terms")}
+                onPress={() => Linking.openURL("https://biteseeker.app/terms")}
               >
                 <Text style={styles.legalLink}>{t("termsOfUse", { ns: "common" })}</Text>
               </Pressable>
               <Text style={styles.legalDot}> · </Text>
               <Pressable
                 style={styles.legalLinkWrap}
-                onPress={() => Linking.openURL("https://dlishe.com/privacy")}
+                onPress={() => Linking.openURL("https://biteseeker.app/privacy")}
               >
                 <Text style={styles.legalLink}>{t("privacyPolicy", { ns: "common" })}</Text>
               </Pressable>

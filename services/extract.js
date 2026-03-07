@@ -6,7 +6,7 @@ function getCurrentLanguage() {
 }
 
 export async function extractRecipeFromUrl({ url, getToken, txSignature }) {
-  return authFetch("/recipes/extract", getToken, {
+  return authFetch("/recipes/extract", {
     method: "POST",
     body: JSON.stringify({
       url,
@@ -33,7 +33,7 @@ export async function extractRecipeFromImage({ images, getToken, txSignature }) 
     language: lang,
     ...(txSignature ? { txSignature } : {}),
   };
-  return authFetch("/recipes/extract", getToken, {
+  return authFetch("/recipes/extract", {
     method: "POST",
     body: JSON.stringify(payload),
     timeout: 120000,
@@ -41,11 +41,11 @@ export async function extractRecipeFromImage({ images, getToken, txSignature }) 
 }
 
 export async function getJobStatus({ jobId, getToken }) {
-  return authFetch(`/jobs/${jobId}`, getToken);
+  return authFetch(`/jobs/${jobId}`);
 }
 
 export async function getRecipe({ recipeId, getToken }) {
-  return authFetch(`/recipes/${recipeId}`, getToken);
+  return authFetch(`/recipes/${recipeId}`);
 }
 
 export function isTerminalStatus(status) {

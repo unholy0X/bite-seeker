@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, radii } from '@/src/theme/tokens';
 
 type PantryHeaderProps = {
-  onAddPress: () => void;
+  onAddPress?: () => void;
 };
 
 export function PantryHeader({ onAddPress }: PantryHeaderProps) {

@@ -84,10 +84,10 @@
       "expo-image"
     ],
     "extra": {
+      "router": {},
       "eas": {
-        "projectId": "42f23a45-0d0c-401a-9668-45b87622f23c"
-      },
-      "router": {}
+        "projectId": "1ced04bd-6585-47ed-9d03-c6259623fe42"
+      }
     },
     "owner": "0xunholy"
   }

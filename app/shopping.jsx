@@ -1,39 +1,26 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  ActivityIndicator,
-  RefreshControl,
-  Pressable,
-  Alert,
-  TextInput,
-  AppState,
+  View, Text, StyleSheet, ScrollView, ActivityIndicator,
+  RefreshControl, Pressable, Alert, TextInput, AppState,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, usePathname } from "expo-router";
-import { BlurView } from "expo-blur";
-import FloatingNav from "../components/FloatingNav";
-import SwipeNavigator from "../components/SwipeNavigator";
+import { AppBottomNav } from "@/src/features/navigation/components/app-bottom-nav";
+import { colors, radii, spacing } from "@/src/theme/tokens";
 import BottomSheetModal from "../components/BottomSheetModal";
-import ShoppingIcon from "../components/icons/ShoppingIcon";
 import CheckIcon from "../components/icons/CheckIcon";
 import PlusIcon from "../components/icons/PlusIcon";
-import DotsVerticalIcon from "../components/icons/DotsVerticalIcon";
-import AddRecipeSheetContent from "../components/recipies/AddRecipeSheetContent";
 import { useTranslation } from "react-i18next";
 import { useShoppingStore } from "../store";
 import { sc } from "../utils/deviceScale";
 
-// Subtle tinted cards — just enough to tell them apart
-const CARD_COLORS = [
-  { bg: "#F0F8E8", accent: "#E2F0D4", accent2: "#E8F4DC", text: "#333333", progress: "#C0DFA0", progressBg: "#E2F0D4" },
-  { bg: "#EBF3FD", accent: "#DAE8F9", accent2: "#E0ECF9", text: "#333333", progress: "#A8CDF0", progressBg: "#DAE8F9" },
-  { bg: "#F2EEFD", accent: "#E6DFFA", accent2: "#EBE5FB", text: "#333333", progress: "#C4B8F0", progressBg: "#E6DFFA" },
-  { bg: "#FDF2E8", accent: "#F9E4D0", accent2: "#FBE9D8", text: "#333333", progress: "#F0CDA8", progressBg: "#F9E4D0" },
-  { bg: "#FDEEEE", accent: "#F9DEDE", accent2: "#FBE4E4", text: "#333333", progress: "#F0B8B8", progressBg: "#F9DEDE" },
-  { bg: "#ECF6F3", accent: "#DBEeE8", accent2: "#E2F0EC", text: "#333333", progress: "#A8D8C8", progressBg: "#DBEeE8" },
+const CARD_PALETTES = [
+  { bg: "#0D1A0C", border: "#1A2C18", text: "#F3F5F8", progress: "#B6FF00", progressBg: "#1A2C18" },
+  { bg: "#0D1524", border: "#152240", text: "#F3F5F8", progress: "#6AB0F0", progressBg: "#152240" },
+  { bg: "#160D27", border: "#241545", text: "#F3F5F8", progress: "#A090E0", progressBg: "#241545" },
+  { bg: "#271506", border: "#3D2200", text: "#F3F5F8", progress: "#E08040", progressBg: "#3D2200" },
+  { bg: "#270A0A", border: "#3D1010", text: "#F3F5F8", progress: "#E06060", progressBg: "#3D1010" },
+  { bg: "#091F1A", border: "#0F3028", text: "#F3F5F8", progress: "#40C0A0", progressBg: "#0F3028" },
 ];
 
 const ShoppingListCard = ({ list, index, onPress, onLongPress, isSelecting, isSelected, onSelect }) => {
@@ -42,57 +29,38 @@ const ShoppingListCard = ({ list, index, onPress, onLongPress, isSelecting, isSe
   const checkedCount = list.checkedCount || 0;
   const progress = itemCount > 0 ? checkedCount / itemCount : 0;
   const isComplete = itemCount > 0 && checkedCount === itemCount;
-  const palette = CARD_COLORS[index % CARD_COLORS.length];
-
-  const handlePress = () => {
-    if (isSelecting) {
-      onSelect(list.id);
-    } else {
-      onPress();
-    }
-  };
-
-  const handleLongPress = () => {
-    if (!isSelecting) {
-      onLongPress();
-    }
-  };
+  const p = CARD_PALETTES[index % CARD_PALETTES.length];
 
   return (
     <Pressable
-      style={[styles.listCard, { backgroundColor: palette.bg }, isSelected && styles.listCardSelected]}
-      onPress={handlePress}
-      onLongPress={handleLongPress}
+      style={[styles.listCard, { backgroundColor: p.bg, borderColor: p.border },
+        isSelected && styles.listCardSelected]}
+      onPress={() => isSelecting ? onSelect(list.id) : onPress()}
+      onLongPress={() => !isSelecting && onLongPress()}
     >
-      {/* Accent circles */}
-      <View style={[styles.cardAccent, { backgroundColor: palette.accent }]} />
-      <View style={[styles.cardAccent2, { backgroundColor: palette.accent2 }]} />
-
-      {/* Selection checkbox */}
       {isSelecting && (
         <View style={[styles.selectCheckbox, isSelected && styles.selectCheckboxChecked]}>
           {isSelected && <CheckIcon width={sc(12)} height={sc(12)} color="#ffffff" />}
         </View>
       )}
-
       <View style={styles.listInfo}>
-        <Text style={[styles.listName, { color: palette.text }]} numberOfLines={1}>{list.name}</Text>
-        <Text style={[styles.listCount, { color: palette.text, opacity: 0.7 }]}>
+        <Text style={[styles.listName, { color: p.text }]} numberOfLines={1}>{list.name}</Text>
+        <Text style={[styles.listCount, { color: p.text, opacity: 0.6 }]}>
           {t("detail.checked", { count: itemCount, checked: checkedCount, total: itemCount })}
         </Text>
         {itemCount > 0 && (
-          <View style={[styles.progressBar, { backgroundColor: palette.progressBg }]}>
-            <View style={[styles.progressFill, { width: `${progress * 100}%`, backgroundColor: palette.progress }]} />
+          <View style={[styles.progressBar, { backgroundColor: p.progressBg }]}>
+            <View style={[styles.progressFill, { width: `${progress * 100}%`, backgroundColor: p.progress }]} />
           </View>
         )}
       </View>
       <View style={styles.listStatus}>
         {isComplete ? (
-          <View style={[styles.completeBadge, { backgroundColor: palette.text + "20" }]}>
-            <CheckIcon width={sc(14)} height={sc(14)} color={palette.text} />
+          <View style={[styles.completeBadge, { backgroundColor: p.border }]}>
+            <CheckIcon width={sc(14)} height={sc(14)} color={colors.accent} />
           </View>
         ) : itemCount > 0 ? (
-          <Text style={[styles.progressText, { color: palette.text }]}>{checkedCount}/{itemCount}</Text>
+          <Text style={[styles.progressText, { color: p.text }]}>{checkedCount}/{itemCount}</Text>
         ) : null}
       </View>
     </Pressable>
@@ -120,17 +88,15 @@ const CreateListSheet = ({ onClose, onCreate }) => {
   return (
     <View style={styles.sheetContent}>
       <Text style={styles.sheetTitle}>{t("create.sheetTitle")}</Text>
-
       <Text style={styles.inputLabel}>{t("create.nameLabel")}</Text>
       <TextInput
         style={styles.textInput}
         placeholder={t("create.namePlaceholder")}
-        placeholderTextColor="#B4B4B4"
+        placeholderTextColor={colors.textMuted}
         value={name}
         onChangeText={setName}
         autoFocus
       />
-
       <View style={styles.sheetButtons}>
         <Pressable style={styles.cancelBtn} onPress={onClose}>
           <Text style={styles.cancelBtnText}>{t("create.cancel")}</Text>
@@ -141,7 +107,7 @@ const CreateListSheet = ({ onClose, onCreate }) => {
           disabled={!name.trim() || isCreating}
         >
           {isCreating ? (
-            <ActivityIndicator size="small" color="#2a5a2a" />
+            <ActivityIndicator size="small" color={colors.accentText} />
           ) : (
             <Text style={styles.createBtnText}>{t("create.create")}</Text>
           )}
@@ -151,329 +117,205 @@ const CreateListSheet = ({ onClose, onCreate }) => {
   );
 };
 
-export default function ShoppingScreen() {
+export default function ShoppingRoute() {
   const router = useRouter();
   const pathname = usePathname();
-  const activeKey = pathname.replace("/", "") || "shopping";
   const { t, i18n } = useTranslation("shopping");
   const [isSheetOpen, setSheetOpen] = useState(false);
-  const [isAddRecipeOpen, setAddRecipeOpen] = useState(false);
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
 
-  const {
-    lists = [], isLoading, isMerging, error,
-    loadLists, createList, deleteList, deleteLists, mergeLists,
-  } = useShoppingStore();
+  const { lists = [], isLoading, isMerging, error, loadLists, createList, deleteList, deleteLists, mergeLists } =
+    useShoppingStore();
 
-  // Load lists on mount + when app comes back to foreground
   useEffect(() => {
-    loadLists({}).catch(() => { });
+    loadLists({}).catch(() => {});
     const sub = AppState.addEventListener("change", (state) => {
-      if (state === "active") loadLists({}).catch(() => { });
+      if (state === "active") loadLists({}).catch(() => {});
     });
     return () => sub.remove();
   }, []);
 
-  // Also reload when pathname changes back to shopping (returning from detail)
   useEffect(() => {
-    if (pathname === "/shopping") {
-      loadLists({}).catch(() => { });
-    }
+    if (pathname === "/shopping") loadLists({}).catch(() => {});
   }, [pathname]);
 
-  const onRefresh = useCallback(() => {
-    loadLists({}).catch(() => { });
-  }, []);
+  const safeListsArray = Array.isArray(lists) ? lists : [];
+  const isEmpty = !isLoading && safeListsArray.length === 0;
 
-  const handleCreateList = async (name) => {
-    await createList({ name });
-  };
+  const toggleSelect = (id) => setSelectedIds((prev) =>
+    prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+  );
+  const enterSelectMode = () => { setIsSelecting(true); setSelectedIds([]); };
+  const exitSelectMode = () => { setIsSelecting(false); setSelectedIds([]); };
 
-  const handleDeleteList = (list) => {
-    Alert.alert(t("delete.title", { count: 1 }), t("delete.messageNamed", { name: list.name }), [
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return;
+    Alert.alert(t("delete.title", { count: selectedIds.length }), t("delete.message", { count: selectedIds.length }), [
       { text: t("buttons.cancel", { ns: "common" }), style: "cancel" },
-      {
-        text: t("buttons.delete", { ns: "common" }),
-        style: "destructive",
-        onPress: () => {
-          deleteList({ listId: list.id }).catch((err) => {
-            Alert.alert(t("errors:shopping.deleteFailed"), err?.message || t("tryAgain", { ns: "common" }));
-          });
+      { text: t("buttons.delete", { ns: "common" }), style: "destructive",
+        onPress: async () => {
+          try { await deleteLists({ listIds: selectedIds }); exitSelectMode(); }
+          catch (err) { Alert.alert(t("errors:shopping.deleteFailed"), err?.message || t("tryAgain", { ns: "common" })); }
         },
       },
     ]);
   };
 
-  const handleOpenList = (list) => {
-    router.push(`/shoppingList?id=${list.id}`);
-  };
-
-  // Selection mode
-  const toggleSelect = (id) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
-
-  const enterSelectMode = () => {
-    setIsSelecting(true);
-    setSelectedIds([]);
-  };
-
-  const exitSelectMode = () => {
-    setIsSelecting(false);
-    setSelectedIds([]);
-  };
-
-  const handleDeleteSelected = () => {
-    if (selectedIds.length === 0) return;
-    Alert.alert(
-      t("delete.title", { count: selectedIds.length }),
-      t("delete.message", { count: selectedIds.length }),
-      [
-        { text: t("buttons.cancel", { ns: "common" }), style: "cancel" },
-        {
-          text: t("buttons.delete", { ns: "common" }),
-          style: "destructive",
-          onPress: async () => {
-            try {
-              await deleteLists({ listIds: selectedIds });
-              exitSelectMode();
-            } catch (err) {
-              Alert.alert(t("errors:shopping.deleteFailed"), err?.message || t("tryAgain", { ns: "common" }));
-            }
-          },
-        },
-      ]
-    );
-  };
-
   const handleMergeSelected = () => {
-    if (selectedIds.length < 2) {
-      Alert.alert(t("merge.selectMore"), t("merge.hint"));
-      return;
-    }
-    const names = selectedIds.map((id) => {
-      const l = safeListsArray.find((x) => x.id === id);
-      return l?.name || "Unknown";
-    });
-    Alert.alert(
-      t("merge.title"),
-      t("merge.confirm", { names: names.join(", ") }),
-      [
-        { text: t("buttons.cancel", { ns: "common" }), style: "cancel" },
-        {
-          text: t("merge.merge"),
-          onPress: async () => {
-            try {
-              const dateStr = new Date().toLocaleDateString(i18n.language, { month: "short", day: "numeric" });
-              const name = t("merge.generatedName", { date: dateStr });
-              await mergeLists({ sourceListIds: selectedIds, name });
-              Alert.alert(t("merge.successTitle"), t("merge.successMessage"));
-            } catch {
-              Alert.alert(t("errors:shopping.mergeFailed"), t("tryAgain", { ns: "common" }));
-            }
-            exitSelectMode();
-          },
-        },
-      ]
-    );
+    if (selectedIds.length < 2) { Alert.alert(t("merge.selectMore"), t("merge.hint")); return; }
+    const names = selectedIds.map((id) => safeListsArray.find((x) => x.id === id)?.name || "");
+    Alert.alert(t("merge.title"), t("merge.confirm", { names: names.join(", ") }), [
+      { text: t("buttons.cancel", { ns: "common" }), style: "cancel" },
+      { text: t("merge.merge"), onPress: async () => {
+        try {
+          const dateStr = new Date().toLocaleDateString(i18n.language, { month: "short", day: "numeric" });
+          await mergeLists({ sourceListIds: selectedIds, name: t("merge.generatedName", { date: dateStr }) });
+          Alert.alert(t("merge.successTitle"), t("merge.successMessage"));
+        } catch { Alert.alert(t("errors:shopping.mergeFailed"), t("tryAgain", { ns: "common" })); }
+        exitSelectMode();
+      }},
+    ]);
   };
-
-  const safeListsArray = Array.isArray(lists) ? lists : [];
-  const isEmpty = !isLoading && safeListsArray.length === 0;
 
   const handleClearAll = useCallback(() => {
     setMenuOpen(false);
-    const count = safeListsArray.length;
-    Alert.alert(
-      t("clearAll.title"),
-      t("clearAll.message", { count }),
-      [
-        { text: t("clearAll.keepLists"), style: "cancel" },
-        {
-          text: t("clearAll.clearAll"),
-          style: "destructive",
-          onPress: async () => {
-            setIsClearing(true);
-            try {
-              const allIds = safeListsArray.map((l) => l.id);
-              await deleteLists({ listIds: allIds });
-            } catch (err) {
-              Alert.alert(t("errors:shopping.deleteFailed"), err?.message || t("tryAgain", { ns: "common" }));
-            } finally {
-              setIsClearing(false);
-            }
-          },
-        },
-      ]
-    );
+    Alert.alert(t("clearAll.title"), t("clearAll.message", { count: safeListsArray.length }), [
+      { text: t("clearAll.keepLists"), style: "cancel" },
+      { text: t("clearAll.clearAll"), style: "destructive", onPress: async () => {
+        setIsClearing(true);
+        try { await deleteLists({ listIds: safeListsArray.map((l) => l.id) }); }
+        catch (err) { Alert.alert(t("errors:shopping.deleteFailed"), err?.message || t("tryAgain", { ns: "common" })); }
+        finally { setIsClearing(false); }
+      }},
+    ]);
   }, [safeListsArray]);
 
   return (
     <View style={styles.screen}>
-      <SwipeNavigator>
-        <SafeAreaView style={styles.safeArea} edges={["top"]}>
-          <View style={styles.header}>
-            <View>
-              <Text style={styles.title}>{t("header")}</Text>
-              <Text style={styles.subtitle}>{t("listCount", { count: safeListsArray.length })}</Text>
-            </View>
-            <View style={styles.headerActions}>
-              {isSelecting ? (
-                <Pressable style={styles.cancelSelectBtn} onPress={exitSelectMode}>
-                  <Text style={styles.cancelSelectText}>{t("buttons.cancel", { ns: "common" })}</Text>
-                </Pressable>
-              ) : (
-                <>
-                  <Pressable onPress={() => setMenuOpen(true)}>
-                    <BlurView intensity={120} tint="light" style={styles.dotsBlur}>
-                      <DotsVerticalIcon width={sc(6)} height={sc(20)} color="#B4B4B4" />
-                    </BlurView>
-                  </Pressable>
-                  <Pressable style={styles.addButton} onPress={() => setSheetOpen(true)}>
-                    <PlusIcon width={sc(24)} height={sc(24)} color="#385225" />
-                  </Pressable>
-                </>
-              )}
-            </View>
+      <SafeAreaView style={styles.safeArea} edges={["top"]}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.title}>{t("header")}</Text>
+            <Text style={styles.subtitle}>{t("listCount", { count: safeListsArray.length })}</Text>
           </View>
+          <View style={styles.headerActions}>
+            {isSelecting ? (
+              <Pressable style={styles.cancelSelectBtn} onPress={exitSelectMode}>
+                <Text style={styles.cancelSelectText}>{t("buttons.cancel", { ns: "common" })}</Text>
+              </Pressable>
+            ) : (
+              <>
+                <Pressable style={styles.iconButton} onPress={() => setMenuOpen(true)}>
+                  <Text style={styles.dotsText}>•••</Text>
+                </Pressable>
+                <Pressable style={styles.addButton} onPress={() => setSheetOpen(true)}>
+                  <PlusIcon width={sc(22)} height={sc(22)} color={colors.accentText} />
+                </Pressable>
+              </>
+            )}
+          </View>
+        </View>
 
-          {isLoading && safeListsArray.length === 0 ? (
-            <View style={styles.centered}>
-              <ActivityIndicator size="large" color="#385225" />
-              <Text style={styles.loadingText}>{t("loading")}</Text>
-            </View>
-          ) : error ? (
-            <View style={styles.centered}>
-              <Text style={styles.errorText}>{error}</Text>
-            </View>
-          ) : isEmpty ? (
-            <View style={styles.emptyState}>
-              <View style={styles.emptyIconWrap}>
-                <ShoppingIcon width={sc(32)} height={sc(28)} color="#6b6b6b" />
-              </View>
-              <Text style={styles.emptyTitle}>{t("empty.title")}</Text>
-              <Text style={styles.emptySubtitle}>{t("empty.subtitle")}</Text>
-              <Pressable style={styles.emptyBtn} onPress={() => setSheetOpen(true)}>
-                <Text style={styles.emptyBtnText}>{t("empty.createButton")}</Text>
+        {/* Content */}
+        {isLoading && safeListsArray.length === 0 ? (
+          <View style={styles.centered}>
+            <ActivityIndicator color={colors.accent} size="large" />
+          </View>
+        ) : error ? (
+          <View style={styles.centered}>
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        ) : isEmpty ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyTitle}>{t("empty.title")}</Text>
+            <Text style={styles.emptySubtitle}>{t("empty.subtitle")}</Text>
+            <Pressable style={styles.emptyBtn} onPress={() => setSheetOpen(true)}>
+              <Text style={styles.emptyBtnText}>{t("empty.createButton")}</Text>
+            </Pressable>
+          </View>
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+            refreshControl={<RefreshControl refreshing={isLoading} onRefresh={() => loadLists({}).catch(() => {})} tintColor={colors.accent} />}
+          >
+            {safeListsArray.map((list, index) => (
+              <ShoppingListCard
+                key={list.id}
+                list={list}
+                index={index}
+                onPress={() => router.push(`/shoppingList?id=${list.id}`)}
+                onLongPress={() => Alert.alert(
+                  t("delete.title", { count: 1 }),
+                  t("delete.messageNamed", { name: list.name }),
+                  [
+                    { text: t("buttons.cancel", { ns: "common" }), style: "cancel" },
+                    { text: t("buttons.delete", { ns: "common" }), style: "destructive",
+                      onPress: () => deleteList({ listId: list.id }).catch((err) =>
+                        Alert.alert(t("errors:shopping.deleteFailed"), err?.message || t("tryAgain", { ns: "common" }))
+                      ),
+                    },
+                  ]
+                )}
+                isSelecting={isSelecting}
+                isSelected={selectedIds.includes(list.id)}
+                onSelect={toggleSelect}
+              />
+            ))}
+          </ScrollView>
+        )}
+
+        {/* Selection action bar */}
+        {isSelecting && selectedIds.length > 0 && (
+          <View style={styles.selectionBar}>
+            <Text style={styles.selectionCount}>{selectedIds.length} selected</Text>
+            <View style={styles.selectionActions}>
+              {selectedIds.length >= 2 && (
+                <Pressable style={[styles.selectionBtn, styles.mergeBtn]} onPress={handleMergeSelected} disabled={isMerging}>
+                  {isMerging ? <ActivityIndicator size="small" color="#28457A" /> : <Text style={styles.mergeBtnText}>{t("merge.merge")}</Text>}
+                </Pressable>
+              )}
+              <Pressable style={[styles.selectionBtn, styles.deleteBtn]} onPress={handleDeleteSelected}>
+                <Text style={styles.deleteBtnText}>{t("buttons.delete", { ns: "common" })}</Text>
               </Pressable>
             </View>
-          ) : (
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-              refreshControl={
-                <RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor="#385225" />
-              }
-            >
-              {safeListsArray.map((list, index) => (
-                <ShoppingListCard
-                  key={list.id}
-                  list={list}
-                  index={index}
-                  onPress={() => handleOpenList(list)}
-                  onLongPress={() => isSelecting ? null : handleDeleteList(list)}
-                  isSelecting={isSelecting}
-                  isSelected={selectedIds.includes(list.id)}
-                  onSelect={toggleSelect}
-                />
-              ))}
-            </ScrollView>
-          )}
+          </View>
+        )}
+      </SafeAreaView>
 
-          {/* Selection action bar */}
-          {isSelecting && selectedIds.length > 0 && (
-            <View style={styles.selectionBar}>
-              <Text style={styles.selectionCount}>
-                {t("selected", { count: selectedIds.length, ns: "common" })}
-              </Text>
-              <View style={styles.selectionActions}>
-                {selectedIds.length >= 2 && (
-                  <Pressable
-                    style={[styles.selectionBtn, styles.mergeBtn]}
-                    onPress={handleMergeSelected}
-                    disabled={isMerging}
-                  >
-                    {isMerging ? (
-                      <ActivityIndicator size="small" color="#28457A" />
-                    ) : (
-                      <Text style={styles.mergeBtnText}>{t("merge.merge")}</Text>
-                    )}
-                  </Pressable>
-                )}
-                <Pressable style={[styles.selectionBtn, styles.deleteBtn]} onPress={handleDeleteSelected}>
-                  <Text style={styles.deleteBtnText}>{t("buttons.delete", { ns: "common" })}</Text>
-                </Pressable>
-              </View>
-            </View>
-          )}
-        </SafeAreaView>
-      </SwipeNavigator>
+      {!isSelecting && <AppBottomNav />}
 
-      {!isSelecting && (
-        <FloatingNav
-          onPressItem={(key) => { if (key !== activeKey) router.replace(`/${key}`); }}
-          onPressPlus={() => setAddRecipeOpen(true)}
-          activeKey={activeKey}
-        />
-      )}
-
-      <BottomSheetModal visible={isSheetOpen} onClose={() => setSheetOpen(false)}>
-        <CreateListSheet
-          onClose={() => setSheetOpen(false)}
-          onCreate={handleCreateList}
-        />
-      </BottomSheetModal>
-
-      {/* Add Recipe sheet (from FloatingNav +) */}
-      <BottomSheetModal visible={isAddRecipeOpen} onClose={() => setAddRecipeOpen(false)}>
-        <AddRecipeSheetContent onPressBack={() => setAddRecipeOpen(false)} />
+      {/* Create list sheet */}
+      <BottomSheetModal visible={isSheetOpen} onClose={() => setSheetOpen(false)} sheetBackground="#0E131D">
+        <CreateListSheet onClose={() => setSheetOpen(false)} onCreate={async (name) => { await createList({ name }); }} />
       </BottomSheetModal>
 
       {/* Menu sheet */}
-      <BottomSheetModal visible={isMenuOpen} onClose={() => setMenuOpen(false)}>
+      <BottomSheetModal visible={isMenuOpen} onClose={() => setMenuOpen(false)} sheetBackground="#0E131D">
         <View style={styles.menuSheet}>
           <Text style={styles.menuTitle}>{t("menu.title")}</Text>
-
-          {/* Select Lists */}
-          <Pressable
-            style={styles.menuOptionNeutral}
-            onPress={() => { setMenuOpen(false); enterSelectMode(); }}
-          >
+          <Pressable style={styles.menuOptionNeutral} onPress={() => { setMenuOpen(false); enterSelectMode(); }}>
             <View style={styles.menuOptionNeutralIcon}>
-              <CheckIcon width={sc(16)} height={sc(16)} color="#2a5a2a" />
+              <CheckIcon width={sc(16)} height={sc(16)} color={colors.accent} />
             </View>
-            <View style={styles.menuOptionInfo}>
+            <View>
               <Text style={styles.menuOptionNeutralLabel}>{t("menu.selectLists")}</Text>
               <Text style={styles.menuOptionDesc}>{t("menu.selectHint")}</Text>
             </View>
           </Pressable>
-
-          {/* Clear All */}
-          <Pressable
-            style={styles.menuOption}
-            onPress={handleClearAll}
-            disabled={safeListsArray.length === 0 || isClearing}
-          >
+          <Pressable style={styles.menuOption} onPress={handleClearAll} disabled={safeListsArray.length === 0 || isClearing}>
             <View style={styles.menuOptionIcon}>
-              {isClearing ? (
-                <ActivityIndicator size="small" color="#cc3b3b" />
-              ) : (
-                <Text style={styles.menuOptionIconText}>{"\u2715"}</Text>
-              )}
+              {isClearing ? <ActivityIndicator size="small" color="#FF6B6B" /> : <Text style={styles.menuOptionIconText}>✕</Text>}
             </View>
-            <View style={styles.menuOptionInfo}>
+            <View>
               <Text style={styles.menuOptionLabel}>{t("clearAll.title")}</Text>
-              <Text style={styles.menuOptionDesc}>
-                {t("menu.clearHint", { count: safeListsArray.length })}
-              </Text>
+              <Text style={styles.menuOptionDesc}>{t("menu.clearHint", { count: safeListsArray.length })}</Text>
             </View>
           </Pressable>
-
           <Pressable style={styles.menuDismiss} onPress={() => setMenuOpen(false)}>
             <Text style={styles.menuDismissText}>{t("buttons.cancel", { ns: "common" })}</Text>
           </Pressable>
@@ -484,393 +326,65 @@ export default function ShoppingScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: "#f4f5f7",
-  },
-  safeArea: {
-    flex: 1,
-    paddingTop: 12,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    marginBottom: 16,
-  },
-  title: {
-    fontSize: sc(24),
-    fontWeight: "500",
-    color: "#000",
-    letterSpacing: -0.05,
-  },
-  subtitle: {
-    marginTop: 3,
-    fontSize: sc(14),
-    color: "#B4B4B4",
-    letterSpacing: -0.05,
-  },
-  headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  dotsBlur: {
-    width: sc(50),
-    height: sc(50),
-    borderWidth: 1,
-    borderColor: "#ffffff",
-    borderRadius: 999,
-    overflow: "hidden",
-    backgroundColor: "rgba(0, 0, 0, 0.15)",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    margin: 3,
-  },
-  addButton: {
-    width: sc(50),
-    height: sc(50),
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#7FEF80",
-  },
-  cancelSelectBtn: {
-    borderRadius: 999,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    backgroundColor: "#E8E8E8",
-  },
-  cancelSelectText: {
-    fontSize: sc(14),
-    fontWeight: "600",
-    color: "#111111",
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 140,
-    gap: 12,
-  },
-  // List Card
-  listCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: 20,
-    padding: 16,
-    overflow: "hidden",
-  },
-  listCardSelected: {
-    borderWidth: 2,
-    borderColor: "#2a5a2a",
-  },
-  cardAccent: {
-    position: "absolute",
-    width: 80,
-    height: 80,
-    borderRadius: 45,
-    top: -30,
-    right: -20,
-    opacity: 0.3,
-  },
-  cardAccent2: {
-    position: "absolute",
-    width: 60,
-    height: 60,
-    borderRadius: 45,
-    top: -15,
-    right: -10,
-    opacity: 0.2,
-  },
-  selectCheckbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: "rgba(0,0,0,0.2)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-  selectCheckboxChecked: {
-    backgroundColor: "#2a5a2a",
-    borderColor: "#2a5a2a",
-  },
-  listInfo: {
-    flex: 1,
-  },
-  listName: {
-    fontSize: sc(16),
-    fontWeight: "600",
-  },
-  listCount: {
-    marginTop: 2,
-    fontSize: sc(13),
-  },
-  progressBar: {
-    marginTop: 8,
-    height: 4,
-    borderRadius: 2,
-    overflow: "hidden",
-  },
-  progressFill: {
-    height: "100%",
-    borderRadius: 2,
-  },
-  listStatus: {
-    marginLeft: 12,
-  },
-  progressText: {
-    fontSize: sc(13),
-    fontWeight: "500",
-  },
-  completeBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  // Selection bar
-  selectionBar: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#ffffff",
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    paddingBottom: 40,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  selectionCount: {
-    fontSize: sc(15),
-    fontWeight: "600",
-    color: "#111111",
-  },
-  selectionActions: {
-    flexDirection: "row",
-    gap: 8,
-  },
-  selectionBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 999,
-    alignItems: "center",
-  },
-  mergeBtn: {
-    backgroundColor: "#9BC6FB",
-  },
-  mergeBtnText: {
-    fontSize: sc(14),
-    fontWeight: "600",
-    color: "#28457A",
-  },
-  deleteBtn: {
-    backgroundColor: "#FBBDBD",
-  },
-  deleteBtnText: {
-    fontSize: sc(14),
-    fontWeight: "600",
-    color: "#7A2828",
-  },
-  // States
-  centered: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: sc(14),
-    color: "#6b6b6b",
-  },
-  errorText: {
-    fontSize: sc(14),
-    color: "#cc3b3b",
-  },
-  emptyState: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 40,
-  },
-  emptyIconWrap: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#E8E8E8",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 16,
-  },
-  emptyTitle: {
-    fontSize: sc(20),
-    fontWeight: "600",
-    color: "#111111",
-    marginBottom: 8,
-  },
-  emptySubtitle: {
-    fontSize: sc(14),
-    color: "#6b6b6b",
-    textAlign: "center",
-    lineHeight: 20,
-  },
-  emptyBtn: {
-    marginTop: 24,
-    backgroundColor: "#7FEF80",
-    borderRadius: 999,
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-  },
-  emptyBtnText: {
-    fontSize: sc(15),
-    fontWeight: "600",
-    color: "#385225",
-  },
-  // Sheet
-  sheetContent: {
-    paddingBottom: 20,
-  },
-  sheetTitle: {
-    fontSize: sc(20),
-    fontWeight: "600",
-    color: "#111111",
-    marginBottom: 20,
-  },
-  inputLabel: {
-    fontSize: sc(13),
-    color: "#6b6b6b",
-    marginBottom: 8,
-    marginTop: 12,
-  },
-  textInput: {
-    backgroundColor: "#F4F5F7",
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: sc(16),
-    color: "#111111",
-  },
-  sheetButtons: {
-    flexDirection: "row",
-    gap: 10,
-    marginTop: 24,
-  },
-  cancelBtn: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 999,
-    backgroundColor: "#F4F5F7",
-    alignItems: "center",
-  },
-  cancelBtnText: {
-    fontSize: sc(15),
-    color: "#6b6b6b",
-    fontWeight: "500",
-  },
-  createBtn: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 999,
-    backgroundColor: "#7FEF80",
-    alignItems: "center",
-  },
-  createBtnDisabled: {
-    opacity: 0.5,
-  },
-  createBtnText: {
-    fontSize: sc(15),
-    color: "#2a5a2a",
-    fontWeight: "600",
-  },
-  // Menu sheet
-  menuSheet: {
-    paddingBottom: 20,
-  },
-  menuTitle: {
-    fontSize: sc(18),
-    fontWeight: "600",
-    color: "#111111",
-    marginBottom: 16,
-  },
-  menuOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFF5F5",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-  },
-  menuOptionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#FDDEDE",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 14,
-  },
-  menuOptionIconText: {
-    fontSize: sc(16),
-    color: "#cc3b3b",
-    fontWeight: "600",
-  },
-  menuOptionInfo: {
-    flex: 1,
-  },
-  menuOptionNeutral: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F0F8E8",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 10,
-  },
-  menuOptionNeutralIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#E2F0D4",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 14,
-  },
-  menuOptionNeutralLabel: {
-    fontSize: sc(16),
-    fontWeight: "600",
-    color: "#2a5a2a",
-  },
-  menuOptionLabel: {
-    fontSize: sc(16),
-    fontWeight: "600",
-    color: "#cc3b3b",
-  },
-  menuOptionDesc: {
-    fontSize: sc(13),
-    color: "#999999",
-    marginTop: 2,
-  },
-  menuDismiss: {
-    alignItems: "center",
-    paddingVertical: 14,
-    borderRadius: 999,
-    backgroundColor: "#F4F5F7",
-  },
-  menuDismissText: {
-    fontSize: sc(15),
-    fontWeight: "500",
-    color: "#6b6b6b",
-  },
+  screen: { flex: 1, backgroundColor: colors.background },
+  safeArea: { flex: 1, paddingTop: spacing.sm },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: spacing.lg, marginBottom: spacing.md },
+  title: { fontSize: sc(24), fontWeight: "700", color: colors.textPrimary },
+  subtitle: { marginTop: 3, fontSize: sc(13), color: colors.textMuted },
+  headerActions: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
+  iconButton: { width: sc(44), height: sc(44), borderRadius: radii.full, backgroundColor: colors.surfaceStrong, alignItems: "center", justifyContent: "center" },
+  dotsText: { color: colors.textSecondary, fontSize: 10, letterSpacing: 1 },
+  addButton: { width: sc(48), height: sc(48), borderRadius: radii.full, backgroundColor: colors.accent, alignItems: "center", justifyContent: "center" },
+  cancelSelectBtn: { borderRadius: radii.full, paddingHorizontal: 18, paddingVertical: 10, backgroundColor: colors.surfaceStrong },
+  cancelSelectText: { fontSize: sc(14), fontWeight: "600", color: colors.textPrimary },
+  scrollContent: { paddingHorizontal: spacing.lg, paddingBottom: 24, gap: spacing.sm },
+  listCard: { flexDirection: "row", alignItems: "center", borderRadius: radii.lg, padding: spacing.md, borderWidth: 1 },
+  listCardSelected: { borderColor: colors.accent, borderWidth: 2 },
+  selectCheckbox: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: colors.surfaceBorder, alignItems: "center", justifyContent: "center", marginRight: spacing.sm },
+  selectCheckboxChecked: { backgroundColor: colors.accent, borderColor: colors.accent },
+  listInfo: { flex: 1 },
+  listName: { fontSize: sc(16), fontWeight: "600" },
+  listCount: { marginTop: 2, fontSize: sc(13) },
+  progressBar: { marginTop: 8, height: 4, borderRadius: 2, overflow: "hidden" },
+  progressFill: { height: "100%", borderRadius: 2 },
+  listStatus: { marginLeft: spacing.sm },
+  progressText: { fontSize: sc(13), fontWeight: "500" },
+  completeBadge: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  selectionBar: { position: "absolute", bottom: 0, left: 0, right: 0, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: colors.surface, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, paddingBottom: 40, borderTopLeftRadius: radii.xl, borderTopRightRadius: radii.xl, borderTopWidth: 1, borderTopColor: colors.divider },
+  selectionCount: { fontSize: sc(15), fontWeight: "600", color: colors.textPrimary },
+  selectionActions: { flexDirection: "row", gap: spacing.xs },
+  selectionBtn: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: radii.full, alignItems: "center" },
+  mergeBtn: { backgroundColor: "#152240" },
+  mergeBtnText: { fontSize: sc(14), fontWeight: "600", color: "#6AB0F0" },
+  deleteBtn: { backgroundColor: "#270A0A" },
+  deleteBtnText: { fontSize: sc(14), fontWeight: "600", color: "#FF6B6B" },
+  centered: { flex: 1, alignItems: "center", justifyContent: "center" },
+  errorText: { fontSize: sc(14), color: "#FF6B6B" },
+  emptyState: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 40 },
+  emptyTitle: { fontSize: sc(20), fontWeight: "600", color: colors.textPrimary, marginBottom: 8 },
+  emptySubtitle: { fontSize: sc(14), color: colors.textSecondary, textAlign: "center", lineHeight: 20 },
+  emptyBtn: { marginTop: 24, backgroundColor: colors.accent, borderRadius: radii.full, paddingHorizontal: 24, paddingVertical: 14 },
+  emptyBtnText: { fontSize: sc(15), fontWeight: "600", color: colors.accentText },
+  sheetContent: { paddingBottom: 20 },
+  sheetTitle: { fontSize: sc(20), fontWeight: "600", color: colors.textPrimary, marginBottom: 20 },
+  inputLabel: { fontSize: sc(13), color: colors.textSecondary, marginBottom: 8, marginTop: 12 },
+  textInput: { backgroundColor: colors.surfaceStrong, borderRadius: radii.md, paddingHorizontal: spacing.md, paddingVertical: 14, fontSize: sc(16), color: colors.textPrimary },
+  sheetButtons: { flexDirection: "row", gap: 10, marginTop: 24 },
+  cancelBtn: { flex: 1, paddingVertical: 14, borderRadius: radii.full, backgroundColor: colors.surfaceStrong, alignItems: "center" },
+  cancelBtnText: { fontSize: sc(15), color: colors.textSecondary, fontWeight: "500" },
+  createBtn: { flex: 1, paddingVertical: 14, borderRadius: radii.full, backgroundColor: colors.accent, alignItems: "center" },
+  createBtnDisabled: { opacity: 0.5 },
+  createBtnText: { fontSize: sc(15), color: colors.accentText, fontWeight: "600" },
+  menuSheet: { paddingBottom: 20 },
+  menuTitle: { fontSize: sc(18), fontWeight: "600", color: colors.textPrimary, marginBottom: spacing.md },
+  menuOptionNeutral: { flexDirection: "row", alignItems: "center", backgroundColor: colors.surfaceMuted, borderRadius: radii.md, padding: spacing.md, marginBottom: spacing.sm, gap: spacing.sm },
+  menuOptionNeutralIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surfaceStrong, alignItems: "center", justifyContent: "center" },
+  menuOptionNeutralLabel: { fontSize: sc(15), fontWeight: "600", color: colors.accent },
+  menuOption: { flexDirection: "row", alignItems: "center", backgroundColor: colors.surfaceMuted, borderRadius: radii.md, padding: spacing.md, marginBottom: spacing.sm, gap: spacing.sm },
+  menuOptionIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.surfaceStrong, alignItems: "center", justifyContent: "center" },
+  menuOptionIconText: { fontSize: sc(16), color: "#FF6B6B", fontWeight: "600" },
+  menuOptionLabel: { fontSize: sc(15), fontWeight: "600", color: "#FF6B6B" },
+  menuOptionDesc: { fontSize: sc(13), color: colors.textMuted, marginTop: 2 },
+  menuDismiss: { alignItems: "center", paddingVertical: 14, borderRadius: radii.full, backgroundColor: colors.surfaceStrong, marginTop: spacing.xs },
+  menuDismissText: { fontSize: sc(15), fontWeight: "500", color: colors.textSecondary },
 });

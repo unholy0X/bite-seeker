@@ -2,7 +2,7 @@ import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
 import { getSubscription } from "../services/subscription";
 
-const STORAGE_KEY = "dlishe_subscription";
+const STORAGE_KEY = "biteseeker_subscription";
 
 async function persistState(state) {
   try {

@@ -13,7 +13,6 @@ import Constants from "expo-constants";
 import { useAuthStore } from "../store/authStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
-import { useDemoStore } from "../store/demoStore";
 import { requestNotificationPermission } from "../services/notifications";
 import Svg, { Path } from "react-native-svg";
 
@@ -24,14 +23,14 @@ function BellLargeIcon() {
     <Svg width={32} height={32} viewBox="0 0 24 24" fill="none">
       <Path
         d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"
-        stroke="#385225"
+        stroke="#B6FF00"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <Path
         d="M13.73 21a2 2 0 0 1-3.46 0"
-        stroke="#385225"
+        stroke="#B6FF00"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -44,12 +43,11 @@ export default function NotificationPermissionSheet() {
   const { t } = useTranslation("common");
   const token = useAuthStore((s) => s.token);
   const isAuthLoading = useAuthStore((s) => s.isLoading);
-  const isDemoMode = useDemoStore((s) => s.isDemoMode);
   const insets = useSafeAreaInsets();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!token || isAuthLoading || isDemoMode) return;
+    if (!token || isAuthLoading) return;
     // Only available in production builds
     if (Constants.executionEnvironment === "storeClient") return;
 
@@ -70,7 +68,7 @@ export default function NotificationPermissionSheet() {
     // Small delay so the user lands on the home screen before the sheet appears
     const timer = setTimeout(check, 1500);
     return () => clearTimeout(timer);
-  }, [token, isAuthLoading, isDemoMode]);
+  }, [token, isAuthLoading]);
 
   const markSeen = async () => {
     await SecureStore.setItemAsync(PROMPTED_KEY, "1").catch(() => {});
@@ -124,7 +122,7 @@ const s = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#fff",
+    backgroundColor: "#121722",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     paddingHorizontal: 28,
@@ -135,14 +133,14 @@ const s = StyleSheet.create({
     width: 44,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "#d9d9d9",
+    backgroundColor: "rgba(255,255,255,0.15)",
     marginBottom: 24,
   },
   iconWrap: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: "#DFF7C4",
+    backgroundColor: "rgba(182,255,0,0.12)",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 20,
@@ -150,28 +148,28 @@ const s = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#111",
+    color: "#F3F5F8",
     textAlign: "center",
     letterSpacing: -0.3,
     marginBottom: 12,
   },
   body: {
     fontSize: 15,
-    color: "#6b6b6b",
+    color: "#7A808F",
     textAlign: "center",
     lineHeight: 22,
     marginBottom: 32,
   },
   primaryBtn: {
     width: "100%",
-    backgroundColor: "#385225",
+    backgroundColor: "#B6FF00",
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: "center",
     marginBottom: 12,
   },
   primaryBtnText: {
-    color: "#fff",
+    color: "#0B0E14",
     fontSize: 16,
     fontWeight: "700",
     letterSpacing: -0.2,
@@ -180,7 +178,7 @@ const s = StyleSheet.create({
     paddingVertical: 10,
   },
   secondaryBtnText: {
-    color: "#6b6b6b",
+    color: "#7A808F",
     fontSize: 15,
     fontWeight: "500",
   },

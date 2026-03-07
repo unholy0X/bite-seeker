@@ -1,5 +1,5 @@
 {
-  "title": "افتح Dlishe Pro",
+  "title": "افتح Bite Seeker Pro",
   "subtitle": {
     "default": "ميزات إضافية بلا حدود استخدام",
     "extraction_limit": "لقد بلغت الحدّ المجاني لاستخراج الوصفات هذا الشهر",
@@ -54,6 +54,15 @@
   "restoreFailed": {
     "title": "فشلت الاستعادة",
     "message": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+  },
+  "gate": {
+    "title": "ميزة Pro",
+    "featureRequires": "تتطلب \"{{feature}}\" وصول Pro.",
+    "howToUnlock": "كيفية إلغاء قفل Pro",
+    "holdSolbite": "احتفظ بـ {{threshold}}+ رمز SOLBITE في محفظتك المتصلة. يُتحقق من حالة Pro تلقائياً.",
+    "currentStatus": "الحالة الحالية: المستوى المجاني",
+    "getSolbite": "احصل على SOLBITE على pump.fun",
+    "maybeLater": "ربما لاحقاً"
   },
   "terms": {
     "ios": "سيُخصَم الدفع من حساب Apple ID الخاص بك عند تأكيد الشراء. يتجدد الاشتراك تلقائيًا ما لم يُلغَ قبل 24 ساعة على الأقل من نهاية الفترة الحالية. يمكنك إدارة الاشتراكات وإلغاؤها من إعدادات حساب App Store.",

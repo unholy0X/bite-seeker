@@ -1,24 +1,37 @@
 import { Feather } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { colors, radii } from '@/src/theme/tokens';
+import { colors, radii, spacing } from '@/src/theme/tokens';
 
 type RecipesHeaderProps = {
-  onAddPress: () => void;
+  onAddPress?: () => void;
+  onSearchPress?: () => void;
 };
 
-export function RecipesHeader({ onAddPress }: RecipesHeaderProps) {
+export function RecipesHeader({ onAddPress, onSearchPress }: RecipesHeaderProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Recipes</Text>
-      <Pressable onPress={onAddPress} style={styles.addButton}>
-        <Feather color={colors.accentText} name="plus" size={22} />
-      </Pressable>
+      <View style={styles.actions}>
+        {onSearchPress && (
+          <Pressable onPress={onSearchPress} style={styles.iconButton}>
+            <Feather color={colors.textSecondary} name="search" size={20} />
+          </Pressable>
+        )}
+        <Pressable onPress={onAddPress} style={styles.addButton}>
+          <Feather color={colors.accentText} name="plus" size={22} />
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  actions: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: spacing.sm,
+  },
   addButton: {
     alignItems: 'center',
     backgroundColor: colors.accent,
@@ -31,6 +44,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  iconButton: {
+    alignItems: 'center',
+    backgroundColor: colors.surfaceStrong,
+    borderRadius: radii.full,
+    height: 44,
+    justifyContent: 'center',
+    width: 44,
   },
   title: {
     color: colors.textPrimary,

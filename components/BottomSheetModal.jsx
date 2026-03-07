@@ -10,6 +10,7 @@ export default function BottomSheetModal({
   onClose,
   children,
   customScroll,
+  sheetBackground,
 }) {
   const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(SLIDE_OFFSET)).current;
@@ -117,6 +118,7 @@ export default function BottomSheetModal({
           style={[
             styles.sheet,
             customScroll && { height: SCREEN_HEIGHT * 0.8 },
+            sheetBackground && { backgroundColor: sheetBackground },
             { transform: [{ translateY: combinedTranslateY }] },
           ]}
           {...panResponder.panHandlers}
@@ -162,7 +164,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   sheet: {
-    backgroundColor: "#F4F5F7",
+    backgroundColor: "#121722",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
@@ -178,7 +180,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 4,
     borderRadius: 2,
-    backgroundColor: "#d9d9d9",
+    backgroundColor: "rgba(255,255,255,0.15)",
   },
   content: {
     paddingBottom: 0,

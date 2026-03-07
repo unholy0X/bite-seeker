@@ -5,7 +5,7 @@ export default function NotFound() {
   const router = useRouter();
 
   useEffect(() => {
-    // Clerk OAuth callbacks (e.g. dlishe://oauth-native-callback) land here
+    // Clerk OAuth callbacks (e.g. biteseeker://oauth-native-callback) land here
     // on Android. Silently redirect to root — AuthGate handles the rest.
     router.replace("/");
   }, []);

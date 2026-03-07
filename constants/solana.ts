@@ -27,6 +27,17 @@ export const SOLBITE_DECIMALS = 6;
 /** Whether SOLBITE is a Token-2022 mint (pump.fun = true) */
 export const SOLBITE_IS_TOKEN_2022 = true;
 
+/**
+ * Buyback accumulator wallet — receives 50% of every extraction payment.
+ * The backend cron swaps accumulated SOLBITE for SEEKER and burns them.
+ */
+export const SOLBITE_BUYBACK_WALLET =
+  process.env.EXPO_PUBLIC_SOLBITE_BUYBACK_WALLET || "";
+
+/** SEEKER token mint address */
+export const SEEKER_MINT_ADDRESS =
+  process.env.EXPO_PUBLIC_SEEKER_MINT_ADDRESS || "";
+
 /** pump.fun URL for acquiring SOLBITE */
 export const SOLBITE_PUMP_URL =
   process.env.EXPO_PUBLIC_SOLBITE_PUMP_URL || "https://pump.fun";

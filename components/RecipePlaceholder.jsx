@@ -3,8 +3,8 @@ import { View, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Svg, { Path } from "react-native-svg";
 
-// Simplified D'lishe fork+leaf brand mark
-function DlisheForkIcon({ size = 44, color = "#ffffff", opacity = 0.12 }) {
+// Fork+leaf placeholder icon for recipe thumbnails
+function RecipeForkIcon({ size = 44, color = "#ffffff", opacity = 0.12 }) {
   return (
     <Svg
       width={size}
@@ -90,7 +90,7 @@ export default function RecipePlaceholder({
       end={{ x: 1, y: 1 }}
       style={[styles.container, style]}
     >
-      <DlisheForkIcon size={iconSize} />
+      <RecipeForkIcon size={iconSize} />
     </LinearGradient>
   );
 }

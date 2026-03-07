@@ -1,18 +1,53 @@
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 
-import { spacing } from '@/src/theme/tokens';
+import { colors, spacing } from '@/src/theme/tokens';
 
-import { recipeCards } from '../data/recipes-content';
+import { useRecipeStore } from '../../../../store';
 import { RecipeCardItem } from './recipe-card-item';
 
 type RecipesGridProps = {
+  activeFilterId?: string;
   onRecipePress?: (recipeId: string) => void;
 };
 
-export function RecipesGrid({ onRecipePress }: RecipesGridProps) {
-  const rows = [];
-  for (let i = 0; i < recipeCards.length; i += 2) {
-    rows.push(recipeCards.slice(i, i + 2));
+export function RecipesGrid({ activeFilterId = 'all', onRecipePress }: RecipesGridProps) {
+  const { recipes, isLoading } = useRecipeStore();
+  const filtered = activeFilterId === 'favorites' ? recipes.filter((r: any) => r.isFavorite) : recipes;
+
+  if (isLoading && recipes.length === 0) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator color={colors.accent} />
+      </View>
+    );
+  }
+
+  if (filtered.length === 0) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.empty}>
+          {activeFilterId === 'favorites' ? 'No favorites yet.' : 'No recipes yet. Add your first one!'}
+        </Text>
+      </View>
+    );
+  }
+
+  const cards = filtered.map((r: any) => ({
+    id: r.id,
+    title: r.title,
+    meta: [
+      (r.prepTime || 0) + (r.cookTime || 0) > 0 ? `${(r.prepTime || 0) + (r.cookTime || 0)} min` : null,
+      r.difficulty || null,
+    ].filter(Boolean).join(' · '),
+    imageAlt: r.title,
+    placeholderLabel: r.title,
+    thumbnailUrl: r.thumbnailUrl || null,
+    tint: '#121722',
+  }));
+
+  const rows: typeof cards[] = [];
+  for (let i = 0; i < cards.length; i += 2) {
+    rows.push(cards.slice(i, i + 2));
   }
 
   return (
@@ -36,8 +71,16 @@ export function RecipesGrid({ onRecipePress }: RecipesGridProps) {
 }
 
 const styles = StyleSheet.create({
+  centered: {
+    alignItems: 'center',
+    marginTop: spacing.xl,
+  },
   column: {
     flex: 1,
+  },
+  empty: {
+    color: colors.textMuted,
+    fontSize: 14,
   },
   firstColumnSpacing: {
     marginRight: spacing.sm,

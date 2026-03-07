@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { LoginScreen } from "@/src/features/auth/screens/login-screen";
-import { useDlisheAuth } from "../utils/useDlisheAuth";
+import { useBiteSeekerAuth } from "../utils/useBiteSeekerAuth";
 
 export default function LoginRoute() {
-  const { signIn, isSigningIn } = useDlisheAuth();
+  const { signIn, isSigningIn } = useBiteSeekerAuth();
   const [error, setError] = useState("");
 
   const handleWalletActionPress = async () => {

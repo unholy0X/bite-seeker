@@ -19,6 +19,7 @@ import {
   fetchRecipeById,
   deleteRecipe,
   cloneRecipe,
+  toggleFavorite,
 } from "../../services/recipes";
 import {
   createShoppingList,
@@ -42,22 +43,20 @@ import SolbiteGateSheet from "../../components/paywall/SolbiteGateSheet";
 
 // ─── Design tokens ───────────────────────────────────────────────
 const C = {
-  bg: "#F4F5F7",
-  card: "#ffffff",
-  textPrimary: "#111111",
-  textSecondary: "#6b6b6b",
-  textMeta: "#B4B4B4",
-  greenDark: "#385225",
-  greenBright: "#7FEF80",
-  greenLight: "#DFF7C4",
-  orangeLight: "#FDC597",
-  orangeDark: "#7A4A21",
-  blueDark: "#28457A",
-  blueLight: "#9BC6FB",
-  purpleLight: "#CCB7F9",
-  purpleDark: "#4A2D73",
-  border: "#EAEAEA",
-  error: "#cc3b3b",
+  bg: "#030712",
+  card: "#121722",
+  cardRaised: "#1B202C",
+  textPrimary: "#F3F5F8",
+  textSecondary: "#9AA0AF",
+  textMeta: "#7A808F",
+  accent: "#B6FF00",
+  accentText: "#0B0E14",
+  accentSubtle: "rgba(182,255,0,0.12)",
+  orangeLight: "rgba(253,197,151,0.18)",
+  orangeDark: "#FDC597",
+  border: "rgba(255,255,255,0.07)",
+  divider: "rgba(255,255,255,0.05)",
+  error: "#FF6B6B",
 };
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -80,7 +79,7 @@ function formatDuration(seconds, t) {
 }
 
 // ─── Icons ───────────────────────────────────────────────────────
-const PlayIcon = ({ size = 14, color = "#385225" }) => (
+const PlayIcon = ({ size = 14, color = "#0B0E14" }) => (
   <Svg width={size} height={size + 1} viewBox="0 0 13 14" fill="none">
     <Path
       fillRule="evenodd"
@@ -235,6 +234,17 @@ export default function RecipeDetailScreen() {
   const entitlement = useSubscriptionStore((state) => state.entitlement);
   const isPro = entitlement === "pro" || entitlement === "admin";
   const [kitchenGateVisible, setKitchenGateVisible] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+
+  const handleToggleFavorite = async () => {
+    const next = !isFavorited;
+    setIsFavorited(next);
+    try {
+      await toggleFavorite({ recipeId: id, isFavorite: next });
+    } catch {
+      setIsFavorited(!next);
+    }
+  };
 
   // A recipe is "own" if it exists in the user's recipe list (by id or as a clone source)
   const isOwn = recipe && myRecipes.some((r) => r.id === recipe.id);
@@ -338,7 +348,7 @@ export default function RecipeDetailScreen() {
     return (
       <View style={s.screen}>
         <SafeAreaView style={s.centered}>
-          <ActivityIndicator size="large" color={C.greenDark} />
+          <ActivityIndicator size="large" color={C.accent} />
           <Text style={s.loadingText}>{t("detail.loading")}</Text>
         </SafeAreaView>
       </View>
@@ -408,7 +418,7 @@ export default function RecipeDetailScreen() {
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={handleRefresh}
-            tintColor={C.greenDark}
+            tintColor={C.accent}
           />
         }
       >
@@ -440,6 +450,17 @@ export default function RecipeDetailScreen() {
           )}
           <SafeAreaView style={s.heroOverlay} edges={["top"]}>
             <BackButton light onPress={() => router.back()} styles={s} />
+            <Pressable onPress={handleToggleFavorite} style={s.favoriteBtn} hitSlop={10}>
+              <Svg width={sc(22)} height={sc(22)} viewBox="0 0 24 24" fill={isFavorited ? "#FF6B6B" : "none"}>
+                <Path
+                  d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                  stroke={isFavorited ? "#FF6B6B" : "#ffffff"}
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </Svg>
+            </Pressable>
           </SafeAreaView>
           <View style={s.heroContent}>
             <Text style={s.heroTitle}>{recipe.title}</Text>
@@ -614,7 +635,7 @@ export default function RecipeDetailScreen() {
                   disabled={isAddingToList}
                 >
                   {isAddingToList ? (
-                    <ActivityIndicator size="small" color={C.greenDark} />
+                    <ActivityIndicator size="small" color={C.accent} />
                   ) : (
                     <Text style={s.addToListBtnText}>{t("detail.addToList")}</Text>
                   )}
@@ -882,6 +903,17 @@ function makeStyles(FONT, isRTL = false) {
       right: 0,
       paddingHorizontal: 20,
       paddingTop: 8,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+    },
+    favoriteBtn: {
+      width: sc(40),
+      height: sc(40),
+      borderRadius: sc(20),
+      backgroundColor: "rgba(0,0,0,0.35)",
+      alignItems: "center",
+      justifyContent: "center",
     },
     heroContent: {
       position: "absolute",
@@ -910,7 +942,7 @@ function makeStyles(FONT, isRTL = false) {
       flexDirection: "row",
       alignItems: "center",
       alignSelf: "flex-start",
-      backgroundColor: "rgba(255, 255, 255, 0.85)",
+      backgroundColor: "rgba(255,255,255,0.08)",
       borderRadius: 999,
       paddingHorizontal: 14,
       paddingVertical: 8,
@@ -932,7 +964,7 @@ function makeStyles(FONT, isRTL = false) {
       width: sc(44),
       height: sc(44),
       borderRadius: sc(22),
-      backgroundColor: C.greenBright,
+      backgroundColor: C.accent,
       alignItems: "center",
       justifyContent: "center",
     },
@@ -993,13 +1025,13 @@ function makeStyles(FONT, isRTL = false) {
     // Language badge
     langBadge: {
       alignSelf: "flex-start",
-      backgroundColor: "#FDF2E8",
+      backgroundColor: "rgba(253,197,151,0.12)",
       borderRadius: 8,
       paddingHorizontal: 9,
       paddingVertical: 3,
       marginBottom: 10,
       borderWidth: 1,
-      borderColor: "#F0A45E",
+      borderColor: "rgba(253,197,151,0.3)",
     },
     langBadgeText: {
       fontSize: sc(11),
@@ -1038,7 +1070,7 @@ function makeStyles(FONT, isRTL = false) {
       marginTop: 12,
     },
     dietaryBadge: {
-      backgroundColor: C.greenLight,
+      backgroundColor: C.accentSubtle,
       borderRadius: 999,
       paddingHorizontal: 12,
       paddingVertical: sc(5),
@@ -1046,7 +1078,7 @@ function makeStyles(FONT, isRTL = false) {
     dietaryText: {
       fontSize: sc(12),
       fontFamily: FONT.medium,
-      color: C.greenDark,
+      color: C.accent,
       lineHeight: sc(18),
       letterSpacing: isRTL ? 0 : -0.05,
     },
@@ -1086,7 +1118,7 @@ function makeStyles(FONT, isRTL = false) {
       alignItems: "flex-start",
     },
     addToListBtn: {
-      backgroundColor: C.greenLight,
+      backgroundColor: C.accentSubtle,
       borderRadius: 999,
       paddingHorizontal: 14,
       paddingVertical: 8,
@@ -1096,13 +1128,13 @@ function makeStyles(FONT, isRTL = false) {
     addToListBtnText: {
       fontSize: sc(13),
       fontFamily: FONT.semibold,
-      color: C.greenDark,
+      color: C.accent,
       letterSpacing: isRTL ? 0 : -0.05,
     },
 
     // Ingredients (new)
     ingredientsCard: {
-      backgroundColor: "#fff",
+      backgroundColor: C.card,
       borderRadius: 20,
       padding: 16,
       marginTop: 14,
@@ -1124,7 +1156,7 @@ function makeStyles(FONT, isRTL = false) {
       lineHeight: sc(22),
     },
     ingredientsList: {
-      backgroundColor: "#F7F7F7",
+      backgroundColor: C.cardRaised,
       borderRadius: 14,
       padding: 12,
     },
@@ -1138,7 +1170,7 @@ function makeStyles(FONT, isRTL = false) {
     // Steps (new)
     stepCard: {
       flexDirection: "row",
-      backgroundColor: "#F7F7F7",
+      backgroundColor: C.cardRaised,
       borderRadius: 18,
       padding: 14,
       marginBottom: 12,
@@ -1148,7 +1180,7 @@ function makeStyles(FONT, isRTL = false) {
       width: sc(30),
       height: sc(30),
       borderRadius: sc(15),
-      backgroundColor: C.greenLight,
+      backgroundColor: C.accentSubtle,
       alignItems: "center",
       justifyContent: "center",
       marginEnd: 10,
@@ -1156,7 +1188,7 @@ function makeStyles(FONT, isRTL = false) {
     stepBadgeText: {
       fontSize: sc(13),
       fontFamily: FONT.semibold,
-      color: C.greenDark,
+      color: C.accent,
     },
     stepCardText: {
       flex: 1,
@@ -1175,7 +1207,7 @@ function makeStyles(FONT, isRTL = false) {
       marginTop: 14,
     },
     nutritionItem: {
-      backgroundColor: C.bg,
+      backgroundColor: C.cardRaised,
       borderRadius: 16,
       paddingVertical: 12,
       paddingHorizontal: 14,
@@ -1201,12 +1233,12 @@ function makeStyles(FONT, isRTL = false) {
       marginTop: 36,
       paddingTop: 24,
       borderTopWidth: 1,
-      borderTopColor: "#F0F0F0",
+      borderTopColor: C.border,
       alignItems: "center",
     },
     primaryBtn: {
       marginTop: 20,
-      backgroundColor: C.greenBright,
+      backgroundColor: C.accent,
       borderRadius: 999,
       paddingVertical: 16,
       alignItems: "center",
@@ -1218,7 +1250,7 @@ function makeStyles(FONT, isRTL = false) {
       gap: 6,
     },
     primaryBtnText: {
-      color: C.greenDark,
+      color: C.accentText,
       fontSize: sc(16),
       fontFamily: FONT.semibold,
     },
@@ -1227,20 +1259,21 @@ function makeStyles(FONT, isRTL = false) {
       flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "#385225",
+      backgroundColor: C.card,
       borderRadius: 14,
       paddingVertical: 14,
       paddingHorizontal: 20,
       width: "100%",
-      opacity: 0.5,
+      borderWidth: 1,
+      borderColor: C.border,
     },
     kitchenGateBtnText: {
-      color: "#ffffff",
+      color: C.textPrimary,
       fontSize: 15,
     },
     deleteBtn: {
       marginTop: 14,
-      backgroundColor: "#FDECEC",
+      backgroundColor: "rgba(255,107,107,0.1)",
       borderRadius: 999,
       paddingVertical: 14,
       alignItems: "center",
@@ -1252,7 +1285,7 @@ function makeStyles(FONT, isRTL = false) {
       gap: 8,
     },
     deleteBtnText: {
-      color: "#E24B4B",
+      color: C.error,
       fontSize: sc(15),
       fontFamily: FONT.medium,
     },
@@ -1261,11 +1294,11 @@ function makeStyles(FONT, isRTL = false) {
       paddingHorizontal: 32,
       borderRadius: 999,
       borderWidth: 1,
-      borderColor: "#F0D0D0",
-      backgroundColor: "#FFF5F5",
+      borderColor: "rgba(255,107,107,0.2)",
+      backgroundColor: "rgba(255,107,107,0.08)",
     },
     deleteButtonPressed: {
-      backgroundColor: "#FFE8E8",
+      backgroundColor: "rgba(255,107,107,0.15)",
     },
     deleteButtonText: {
       fontSize: sc(14),
@@ -1277,7 +1310,7 @@ function makeStyles(FONT, isRTL = false) {
       paddingVertical: 14,
       paddingHorizontal: 40,
       borderRadius: 999,
-      backgroundColor: C.greenBright,
+      backgroundColor: C.accent,
       width: "100%",
       justifyContent: "center",
       alignItems: "center",
@@ -1288,14 +1321,14 @@ function makeStyles(FONT, isRTL = false) {
     saveButtonText: {
       fontSize: sc(14),
       fontFamily: FONT.semibold,
-      color: C.greenDark,
+      color: C.accentText,
       letterSpacing: isRTL ? 0 : -0.05,
     },
     savedBanner: {
       paddingVertical: 14,
       paddingHorizontal: 32,
       borderRadius: 999,
-      backgroundColor: C.greenLight,
+      backgroundColor: C.accentSubtle,
       width: "100%",
       justifyContent: "center",
       alignContent: "center",
@@ -1303,7 +1336,7 @@ function makeStyles(FONT, isRTL = false) {
     savedText: {
       fontSize: sc(14),
       fontFamily: FONT.medium,
-      color: C.greenDark,
+      color: C.accent,
       letterSpacing: isRTL ? 0 : -0.05,
       textAlign: "center",
     },
@@ -1316,13 +1349,13 @@ function makeStyles(FONT, isRTL = false) {
     },
     ingredientBorder: {
       borderBottomWidth: 1,
-      borderBottomColor: "#F0F0F0",
+      borderBottomColor: C.divider,
     },
     ingredientDot: {
       width: 8,
       height: 8,
       borderRadius: 4,
-      backgroundColor: C.greenBright,
+      backgroundColor: C.accent,
       marginTop: 6,
       marginEnd: 12,
     },
@@ -1351,7 +1384,7 @@ function makeStyles(FONT, isRTL = false) {
     ingredientSection: {
       fontSize: sc(14),
       fontFamily: FONT.semibold,
-      color: C.greenDark,
+      color: C.accent,
       marginTop: 14,
       marginBottom: 4,
       letterSpacing: isRTL ? 0 : -0.05,
@@ -1366,7 +1399,7 @@ function makeStyles(FONT, isRTL = false) {
       width: sc(32),
       height: sc(32),
       borderRadius: sc(16),
-      backgroundColor: C.greenLight,
+      backgroundColor: C.accentSubtle,
       alignItems: "center",
       justifyContent: "center",
       marginEnd: 14,
@@ -1375,7 +1408,7 @@ function makeStyles(FONT, isRTL = false) {
     stepNumberText: {
       fontSize: sc(14),
       fontFamily: FONT.semibold,
-      color: C.greenDark,
+      color: C.accent,
     },
     stepContent: { flex: 1 },
     stepInstruction: {

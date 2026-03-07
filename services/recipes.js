@@ -7,19 +7,19 @@ function getCurrentLanguage() {
 
 export async function fetchRecipes({ getToken, limit = 20, offset = 0 }) {
   const params = new URLSearchParams({ limit: String(limit), offset: String(offset) });
-  return authFetch(`/recipes?${params}`, getToken);
+  return authFetch(`/recipes?${params}`);
 }
 
 export async function fetchRecipeById({ recipeId, getToken }) {
-  return authFetch(`/recipes/${recipeId}`, getToken);
+  return authFetch(`/recipes/${recipeId}`);
 }
 
 export async function deleteRecipe({ recipeId, getToken }) {
-  return authFetch(`/recipes/${recipeId}`, getToken, { method: "DELETE" });
+  return authFetch(`/recipes/${recipeId}`, { method: "DELETE" });
 }
 
 export async function deleteAllRecipes({ getToken }) {
-  return authFetch("/recipes", getToken, { method: "DELETE" });
+  return authFetch("/recipes", { method: "DELETE" });
 }
 
 export async function fetchSuggested({ limit = 10, offset = 0 } = {}) {
@@ -33,12 +33,12 @@ export async function fetchFeatured({ limit = 30, offset = 0 } = {}) {
 }
 
 export async function cloneRecipe({ recipeId, getToken }) {
-  return authFetch(`/recipes/${recipeId}/save`, getToken, { method: "POST" });
+  return authFetch(`/recipes/${recipeId}/save`, { method: "POST" });
 }
 
 export async function searchRecipes({ getToken, query, limit = 10 }) {
   const params = new URLSearchParams({ q: query, limit: String(limit) });
-  return authFetch(`/recipes/search?${params}`, getToken);
+  return authFetch(`/recipes/search?${params}`);
 }
 
 export async function searchPublicRecipes({ query, limit = 15 }) {
@@ -47,7 +47,7 @@ export async function searchPublicRecipes({ query, limit = 15 }) {
 }
 
 export async function toggleFavorite({ recipeId, isFavorite, getToken }) {
-  return authFetch(`/recipes/${recipeId}/favorite`, getToken, {
+  return authFetch(`/recipes/${recipeId}/favorite`, {
     method: "POST",
     body: JSON.stringify({ isFavorite }),
   });
@@ -57,7 +57,7 @@ export async function exportToKitchen({ recipeId, getToken, force = false }) {
   const path = force
     ? `/recipes/${recipeId}/export/thermomix?force=true`
     : `/recipes/${recipeId}/export/thermomix`;
-  return authFetch(path, getToken, { method: "POST", timeout: 90000 });
+  return authFetch(path, { method: "POST", timeout: 90000 });
 }
 
 export async function fetchRecommendations({ getToken, filter, limit = 20 }) {
@@ -69,5 +69,5 @@ export async function fetchRecommendations({ getToken, filter, limit = 20 }) {
     params.set("maxTime", "30");
     params.set("mood", "quick");
   }
-  return authFetch(`/recommendations?${params}`, getToken);
+  return authFetch(`/recommendations?${params}`);
 }

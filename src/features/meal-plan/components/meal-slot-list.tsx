@@ -1,13 +1,28 @@
 import { View } from 'react-native';
 
-import { mealSlots } from '../data/meal-plan-content';
 import { MealSlotCard } from './meal-slot-card';
 
-export function MealSlotList() {
+const MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack'] as const;
+
+type MealSlotListProps = {
+  entriesForDay: any[];
+  onAdd: (mealType: string) => void;
+  onRemove: (entryId: string) => void;
+  onPressRecipe: (recipeId: string) => void;
+};
+
+export function MealSlotList({ entriesForDay, onAdd, onRemove, onPressRecipe }: MealSlotListProps) {
   return (
     <View>
-      {mealSlots.map((slot) => (
-        <MealSlotCard key={slot.id} slot={slot} />
+      {MEAL_TYPES.map((type) => (
+        <MealSlotCard
+          key={type}
+          mealType={type}
+          entries={entriesForDay.filter((e) => e.mealType === type)}
+          onAdd={() => onAdd(type)}
+          onRemove={onRemove}
+          onPressRecipe={onPressRecipe}
+        />
       ))}
     </View>
   );

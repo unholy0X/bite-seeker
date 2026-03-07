@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,13 +7,15 @@ import { PantryHeader } from '../components/pantry-header';
 import { PantrySearch } from '../components/pantry-search';
 import { PantrySectionsList } from '../components/pantry-sections-list';
 
-export function PantryScreen() {
-  const router = useRouter();
+type PantryScreenProps = {
+  onAddPress?: () => void;
+};
 
+export function PantryScreen({ onAddPress }: PantryScreenProps) {
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <PantryHeader onAddPress={() => router.push('/pantry-add')} />
+        <PantryHeader onAddPress={onAddPress} />
         <PantrySearch />
         <PantrySectionsList />
       </ScrollView>

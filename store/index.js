@@ -7,4 +7,3 @@ export { usePantryStore } from "./pantryStore";
 export { useShoppingStore } from "./shoppingStore";
 export { useSubscriptionStore } from "./subscriptionStore";
 export { useMealPlanStore } from "./mealPlanStore";
-export { useDemoStore } from "./demoStore";

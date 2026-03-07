@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useAuthStore } from "../store/authStore";
 import { useUserStore } from "../store";
 import { getMe } from "../services/user";
-import { useDemoStore } from "../store/demoStore";
 
 export default function UserSync() {
   const token = useAuthStore((s) => s.token);
@@ -10,12 +9,11 @@ export default function UserSync() {
   const setWalletAddress = useUserStore((s) => s.setWalletAddress);
   const setPreferredUnitSystem = useUserStore((s) => s.setPreferredUnitSystem);
   const clearUser = useUserStore((s) => s.clearUser);
-  const isDemoMode = useDemoStore((s) => s.isDemoMode);
 
   useEffect(() => {
     let cancelled = false;
 
-    if (token || isDemoMode) {
+    if (token) {
       if (walletAddress) {
         setWalletAddress(walletAddress);
       }
@@ -35,7 +33,7 @@ export default function UserSync() {
     }
 
     return () => { cancelled = true; };
-  }, [token, walletAddress, isDemoMode]);
+  }, [token, walletAddress]);
 
   return null;
 }

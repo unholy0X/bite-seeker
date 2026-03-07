@@ -21,7 +21,7 @@ export function useSolbitePayment() {
   const [isPaying, setIsPaying] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
 
-  const payForExtraction = useCallback(async (): Promise<string> => {
+  const payForExtraction = useCallback(async (isPro = false): Promise<string> => {
     if (!SOLBITE_MINT_ADDRESS || !SOLBITE_TREASURY_WALLET) {
       throw new Error("Payment not configured — SOLBITE_MINT_ADDRESS or SOLBITE_TREASURY_WALLET missing");
     }
@@ -33,10 +33,14 @@ export function useSolbitePayment() {
         useAuthStore.getState().walletAddress!
       );
 
+      const amount = isPro
+        ? Math.floor(SOLBITE_EXTRACTION_COST / 2)
+        : SOLBITE_EXTRACTION_COST;
+
       const instructions = await buildPaymentInstructions(fromWallet, {
         mintAddress: SOLBITE_MINT_ADDRESS,
         decimals: SOLBITE_DECIMALS,
-        amount: SOLBITE_EXTRACTION_COST,
+        amount,
         treasuryWallet: SOLBITE_TREASURY_WALLET,
         isToken2022: SOLBITE_IS_TOKEN_2022,
       });

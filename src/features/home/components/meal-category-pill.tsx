@@ -8,10 +8,11 @@ import { BreakfastSvgIcon, DinnerSvgIcon, LunchSvgIcon } from './meal-category-s
 
 type MealCategoryPillProps = {
   category: MealCategory;
+  selected: boolean;
+  onPress: () => void;
 };
 
-export function MealCategoryPill({ category }: MealCategoryPillProps) {
-  const selected = Boolean(category.selected);
+export function MealCategoryPill({ category, selected, onPress }: MealCategoryPillProps) {
 
   const renderIcon = () => {
     if (category.id === 'breakfast') {
@@ -30,7 +31,7 @@ export function MealCategoryPill({ category }: MealCategoryPillProps) {
   };
 
   return (
-    <Pressable style={styles.wrapper}>
+    <Pressable onPress={onPress} style={styles.wrapper}>
       <View style={[styles.iconContainer, selected ? styles.activeIconContainer : styles.inactiveIconContainer]}>
         {renderIcon()}
       </View>

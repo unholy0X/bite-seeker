@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,23 +8,21 @@ import { RecipeFiltersRow } from '../components/recipe-filters-row';
 import { RecipesGrid } from '../components/recipes-grid';
 import { RecipesHeader } from '../components/recipes-header';
 
-export function RecipesScreen() {
-  const router = useRouter();
+type RecipesScreenProps = {
+  onAddPress?: () => void;
+  onSearchPress?: () => void;
+  onRecipePress?: (id: string) => void;
+};
+
+export function RecipesScreen({ onAddPress, onSearchPress, onRecipePress }: RecipesScreenProps) {
   const [activeFilterId, setActiveFilterId] = useState('all');
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <RecipesHeader onAddPress={() => router.push('/recipe-add')} />
+        <RecipesHeader onAddPress={onAddPress} onSearchPress={onSearchPress} />
         <RecipeFiltersRow activeFilterId={activeFilterId} onFilterChange={setActiveFilterId} />
-        <RecipesGrid
-          onRecipePress={(recipeId) =>
-            router.push({
-              params: { id: recipeId },
-              pathname: '/recipe/[id]',
-            })
-          }
-        />
+        <RecipesGrid activeFilterId={activeFilterId} onRecipePress={onRecipePress} />
       </ScrollView>
     </SafeAreaView>
   );

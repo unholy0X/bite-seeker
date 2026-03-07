@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -5,40 +6,39 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing } from '@/src/theme/tokens';
 
 import { DiscoverGrid } from '../components/discover-grid';
+import { FeaturedCategoryRow } from '../components/featured-category-row';
 import { HomeHeader } from '../components/home-header';
 import { MealCategoriesRow } from '../components/meal-categories-row';
 import { MealPlanCard } from '../components/meal-plan-card';
 import { SearchInput } from '../components/search-input';
 import { TrendingSection } from '../components/trending-section';
 
-export function HomeScreen() {
+type HomeScreenProps = {
+  onAddRecipePress?: () => void;
+  onRecipePress?: (id: string) => void;
+  onSearchPress?: () => void;
+};
+
+export function HomeScreen({ onAddRecipePress, onRecipePress, onSearchPress }: HomeScreenProps) {
   const router = useRouter();
+  const [selectedCategory, setSelectedCategory] = useState('breakfast');
 
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <HomeHeader />
-        <SearchInput />
-        <MealCategoriesRow />
-        <TrendingSection />
+        <HomeHeader onAddPress={onAddRecipePress} />
+        <SearchInput onPress={onSearchPress} />
+        <MealCategoriesRow selectedId={selectedCategory} onSelect={setSelectedCategory} />
+        <FeaturedCategoryRow selectedCategory={selectedCategory} onRecipePress={onRecipePress} />
+        <TrendingSection onRecipePress={onRecipePress} />
         <DiscoverGrid
           onCardPress={(cardId) => {
-            if (cardId === 'discover') {
-              router.push('/get-inspired');
-              return;
-            }
-
-            if (cardId === 'pantry') {
-              router.push('/what-can-i-make');
-              return;
-            }
-
-            if (cardId === 'favorites') {
-              router.push('/favorites');
-            }
+            if (cardId === 'discover') router.push('/get-inspired');
+            else if (cardId === 'pantry') router.push('/what-can-i-make');
+            else if (cardId === 'favorites') router.push('/favorites');
           }}
         />
-        <MealPlanCard onViewAllPress={() => router.push('/meal-plan')} />
+        <MealPlanCard onViewAllPress={() => router.push('/mealPlan')} onRecipePress={(id) => router.push(`/recipe/${id}`)} />
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </SafeAreaView>

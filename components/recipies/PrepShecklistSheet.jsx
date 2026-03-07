@@ -13,24 +13,26 @@ import { getFontFamily } from "../../utils/fonts";
 import { sc } from "../../utils/deviceScale";
 
 const C = {
-  bg: "#F4F5F7",
-  card: "#ffffff",
-  muted: "#B4B4B4",
-  text: "#111111",
-  green: "#7FEF80",
-  greenDark: "#385225",
-  border: "#EAEAEA",
+  bg: "#030712",
+  card: "#121722",
+  cardRaised: "#1B202C",
+  muted: "#7A808F",
+  text: "#F3F5F8",
+  accent: "#B6FF00",
+  accentText: "#0B0E14",
+  accentSubtle: "rgba(182,255,0,0.12)",
+  border: "rgba(255,255,255,0.07)",
 };
 
 const SECTION_COLORS = [
-  "#E8845C",
-  "#7A8A5A",
-  "#6B7F6A",
-  "#C17A4E",
-  "#8B6B4A",
-  "#B57A5F",
-  "#D4775D",
-  "#A8856A",
+  "rgba(182,255,0,0.25)",
+  "rgba(100,180,255,0.25)",
+  "rgba(255,160,80,0.25)",
+  "rgba(200,100,255,0.25)",
+  "rgba(80,220,180,0.25)",
+  "rgba(255,100,130,0.25)",
+  "rgba(255,200,60,0.25)",
+  "rgba(120,200,120,0.25)",
 ];
 
 function getSectionColor(index) {
@@ -55,7 +57,7 @@ function makeStyles(FONT) {
     backBtn: {
       flexDirection: "row",
       alignItems: "center",
-      backgroundColor: "#fff",
+      backgroundColor: C.cardRaised,
       borderRadius: 999,
       paddingHorizontal: 14,
       paddingVertical: 8,
@@ -71,7 +73,7 @@ function makeStyles(FONT) {
       color: C.muted,
     },
     counterPill: {
-      backgroundColor: "#fff",
+      backgroundColor: C.cardRaised,
       borderRadius: 999,
       paddingHorizontal: 14,
       paddingVertical: 8,
@@ -110,7 +112,7 @@ function makeStyles(FONT) {
     },
 
     sectionCard: {
-      backgroundColor: "#fff",
+      backgroundColor: C.card,
       borderRadius: 20,
       padding: 16,
       marginTop: 16,
@@ -131,7 +133,7 @@ function makeStyles(FONT) {
     sectionInitial: {
       fontSize: sc(14),
       fontFamily: FONT.semibold,
-      color: "#fff",
+      color: C.text,
     },
     sectionTitle: {
       fontSize: sc(16),
@@ -139,7 +141,7 @@ function makeStyles(FONT) {
       color: C.text,
     },
     sectionInner: {
-      backgroundColor: "#F7F7F7",
+      backgroundColor: C.cardRaised,
       borderRadius: 16,
       padding: 14,
     },
@@ -151,7 +153,7 @@ function makeStyles(FONT) {
     },
     rowBorder: {
       borderBottomWidth: 1,
-      borderBottomColor: "#ECECEC",
+      borderBottomColor: "rgba(255,255,255,0.06)",
     },
     check: {
       width: sc(22),
@@ -163,14 +165,14 @@ function makeStyles(FONT) {
       justifyContent: "center",
     },
     checkOn: {
-      backgroundColor: C.green,
+      backgroundColor: C.accent,
     },
     checkOff: {
-      backgroundColor: "#E6E6E6",
+      backgroundColor: "rgba(255,255,255,0.08)",
     },
     checkMark: {
       fontSize: sc(12),
-      color: C.greenDark,
+      color: C.accentText,
       fontFamily: FONT.semibold,
     },
     rowContent: {
@@ -212,7 +214,7 @@ function makeStyles(FONT) {
       paddingTop: 10,
     },
     readyBtn: {
-      backgroundColor: C.green,
+      backgroundColor: C.accent,
       borderRadius: 999,
       paddingVertical: 16,
       alignItems: "center",
@@ -220,7 +222,7 @@ function makeStyles(FONT) {
     readyBtnText: {
       fontSize: sc(16),
       fontFamily: FONT.semibold,
-      color: C.greenDark,
+      color: C.accentText,
     },
   });
 }

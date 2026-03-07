@@ -167,12 +167,12 @@ export default function SearchOverlay({ visible, onClose, onSelectRecipe }) {
           {/* Search input row */}
           <View style={styles.inputRow}>
             <View style={styles.inputContainer}>
-              <SearchIcon width={sc(20)} height={sc(20)} color="#B4B4B4" />
+              <SearchIcon width={sc(20)} height={sc(20)} color="#7A808F" />
               <TextInput
                 ref={inputRef}
                 style={styles.input}
                 placeholder={t("search.placeholder", "Search recipes...")}
-                placeholderTextColor="#B4B4B4"
+                placeholderTextColor="#7A808F"
                 value={query}
                 onChangeText={handleChangeText}
                 returnKeyType="search"
@@ -200,7 +200,7 @@ export default function SearchOverlay({ visible, onClose, onSelectRecipe }) {
             {/* Loading */}
             {isSearching && (
               <View style={styles.statusRow}>
-                <ActivityIndicator size="small" color="#385225" />
+                <ActivityIndicator size="small" color="#B6FF00" />
                 <Text style={styles.statusText}>{t("search.searching", "Searching...")}</Text>
               </View>
             )}
@@ -218,7 +218,7 @@ export default function SearchOverlay({ visible, onClose, onSelectRecipe }) {
             {/* Hint */}
             {!hasSearched && !isSearching && (
               <View style={styles.hintState}>
-                <SearchIcon width={sc(40)} height={sc(40)} color="#D4D4D4" />
+                <SearchIcon width={sc(40)} height={sc(40)} color="#7A808F" />
                 <Text style={styles.hintText}>
                   {t("search.hintText", "Search by name, cuisine, or ingredient")}
                 </Text>
@@ -252,10 +252,10 @@ export default function SearchOverlay({ visible, onClose, onSelectRecipe }) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.3)",
+    backgroundColor: "rgba(0,0,0,0.4)",
   },
   panel: {
-    backgroundColor: "#F4F5F7",
+    backgroundColor: "#030712",
     flex: 1,
   },
   inputRow: {
@@ -269,29 +269,31 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#121722",
     borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.07)",
   },
   input: {
     flex: 1,
     marginStart: 10,
     fontSize: sc(16),
-    color: "#111111",
+    color: "#F3F5F8",
     paddingVertical: 0,
   },
   clearBtn: {
     width: sc(24),
     height: sc(24),
     borderRadius: sc(12),
-    backgroundColor: "#E8E8E8",
+    backgroundColor: "#1B202C",
     alignItems: "center",
     justifyContent: "center",
   },
   clearText: {
     fontSize: sc(11),
-    color: "#999999",
+    color: "#7A808F",
     fontWeight: "600",
   },
   cancelBtn: {
@@ -300,7 +302,7 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     fontSize: sc(15),
-    color: "#2a5a2a",
+    color: "#B6FF00",
     fontWeight: "600",
   },
   resultsScroll: {
@@ -320,7 +322,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: sc(14),
-    color: "#999999",
+    color: "#7A808F",
   },
   // Empty
   emptyState: {
@@ -330,12 +332,12 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: sc(18),
     fontWeight: "600",
-    color: "#111111",
+    color: "#F3F5F8",
     marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: sc(14),
-    color: "#B4B4B4",
+    color: "#7A808F",
     textAlign: "center",
     lineHeight: sc(20),
   },
@@ -347,13 +349,13 @@ const styles = StyleSheet.create({
   },
   hintText: {
     fontSize: sc(14),
-    color: "#B4B4B4",
+    color: "#7A808F",
   },
   // Section title
   sectionTitle: {
     fontSize: sc(13),
     fontWeight: "600",
-    color: "#999999",
+    color: "#7A808F",
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginTop: 8,
@@ -363,12 +365,12 @@ const styles = StyleSheet.create({
   resultCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#121722",
     borderRadius: 18,
     overflow: "hidden",
     marginBottom: 10,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "#EBEBEB",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.06)",
   },
   resultImage: {
     width: sc(72),
@@ -382,7 +384,7 @@ const styles = StyleSheet.create({
   resultTitle: {
     fontSize: sc(15),
     fontWeight: "600",
-    color: "#111111",
+    color: "#F3F5F8",
     letterSpacing: -0.2,
   },
   resultMeta: {
@@ -391,14 +393,14 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   resultTag: {
-    backgroundColor: "#F0F0F0",
+    backgroundColor: "#1B202C",
     borderRadius: 8,
     paddingHorizontal: 8,
     paddingVertical: 3,
   },
   resultTagText: {
     fontSize: sc(12),
-    color: "#6b6b6b",
+    color: "#9AA0AE",
     fontWeight: "500",
   },
 });

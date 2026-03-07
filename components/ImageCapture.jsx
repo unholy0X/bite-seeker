@@ -159,7 +159,7 @@ export default function ImageCapture({
         disabled={disabled}
       >
         <View style={styles.actionIconWrap}>
-          <CameraIcon width={22} height={22} />
+          <CameraIcon width={22} height={22} color="#B6FF00" />
         </View>
         <View style={styles.actionTextBlock}>
           <Text style={styles.actionTitle}>{finalLabel}</Text>
@@ -210,8 +210,10 @@ const styles = StyleSheet.create({
   actionCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#ffffff",
+    backgroundColor: "#1B202C",
     borderRadius: 999,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.07)",
     padding: 10,
     marginBottom: 12,
   },
@@ -222,7 +224,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#DFF7C4",
+    backgroundColor: "rgba(182,255,0,0.12)",
     alignItems: "center",
     justifyContent: "center",
     marginEnd: 12,
@@ -233,12 +235,12 @@ const styles = StyleSheet.create({
   actionTitle: {
     fontSize: 18,
     fontWeight: "normal",
-    color: "#111111",
+    color: "#F3F5F8",
   },
   actionSubtitle: {
     marginTop: 2,
     fontSize: 12,
-    color: "#385225",
+    color: "#7A808F",
   },
   // Thumbnails state
   container: {
@@ -256,7 +258,7 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 12,
-    backgroundColor: "#EAEAEA",
+    backgroundColor: "#1B202C",
   },
   removeBadge: {
     position: "absolute",
@@ -265,7 +267,7 @@ const styles = StyleSheet.create({
     width: 22,
     height: 22,
     borderRadius: 11,
-    backgroundColor: "#cc3b3b",
+    backgroundColor: "#FF6B6B",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -280,7 +282,7 @@ const styles = StyleSheet.create({
     height: 72,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "#DFDFDF",
+    borderColor: "rgba(255,255,255,0.15)",
     borderStyle: "dashed",
     alignItems: "center",
     justifyContent: "center",
@@ -290,12 +292,12 @@ const styles = StyleSheet.create({
   },
   addThumbText: {
     fontSize: 24,
-    color: "#B4B4B4",
+    color: "#7A808F",
     fontWeight: "300",
   },
   clearText: {
     fontSize: 13,
-    color: "#cc3b3b",
+    color: "#FF6B6B",
     textAlign: "center",
   },
 });

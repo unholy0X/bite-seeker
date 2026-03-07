@@ -17,8 +17,8 @@ import ErrorBoundary from "../components/ErrorBoundary";
 import OfflineBanner from "../components/OfflineBanner";
 import NotificationPermissionSheet from "../components/NotificationPermissionSheet";
 import { useSubscriptionStore } from "../store";
-import { useDemoStore } from "../store/demoStore";
 import { useLanguageStore } from "../store/languageStore";
+import { useUserStore } from "../store/userStore";
 import { useAuthStore } from "../store/authStore";
 import { useArabicFonts } from "../utils/fonts";
 
@@ -38,43 +38,29 @@ function AuthGate() {
   const segments = useSegments();
   const token = useAuthStore((s) => s.token);
   const isAuthLoading = useAuthStore((s) => s.isLoading);
-  const isDemoMode = useDemoStore((s) => s.isDemoMode);
-  const [demoHydrated, setDemoHydrated] = useState(false);
-
-  // Hydrate demo store before running the auth gate
-  useEffect(() => {
-    useDemoStore.getState().hydrate().then(() => setDemoHydrated(true));
-  }, []);
 
   useEffect(() => {
-    if (isAuthLoading || !demoHydrated) return;
+    if (isAuthLoading) return;
     const path = `/${segments.join("/")}`;
     const isAuthRoute = path === "/" || path === "/sign-up";
-    const isAuthenticated = !!token || isDemoMode;
 
-    if (!isAuthenticated && !isAuthRoute) {
+    if (!token && !isAuthRoute) {
       router.replace("/");
-    } else if (isAuthenticated && isAuthRoute) {
+    } else if (token && isAuthRoute) {
       router.replace("/home");
     }
-  }, [token, isAuthLoading, isDemoMode, demoHydrated, segments, router]);
+  }, [token, isAuthLoading, segments, router]);
 
   // Hydrate cached subscription state immediately
   useEffect(() => {
     useSubscriptionStore.getState().hydrate();
   }, []);
 
-  // Demo mode — hardcode Pro subscription
+  // Load subscription when authenticated
   useEffect(() => {
-    if (!isDemoMode) return;
-    useSubscriptionStore.setState({ entitlement: "pro", isActive: true });
-  }, [isDemoMode]);
-
-  // Load subscription when authenticated (real users only)
-  useEffect(() => {
-    if (!token || isDemoMode) return;
+    if (!token) return;
     useSubscriptionStore.getState().loadSubscription().catch(() => {});
-  }, [token, isDemoMode]);
+  }, [token]);
 
   // Keep a stable ref to router
   const routerRef = useRef(router);
@@ -97,7 +83,7 @@ function AuthGate() {
   // Reload subscription when app returns to foreground
   const appState = useRef(AppState.currentState);
   useEffect(() => {
-    if (!token || isDemoMode) return;
+    if (!token) return;
 
     const sub = AppState.addEventListener("change", (nextState) => {
       if (appState.current.match(/inactive|background/) && nextState === "active") {
@@ -107,7 +93,7 @@ function AuthGate() {
     });
 
     return () => sub.remove();
-  }, [token, isDemoMode]);
+  }, [token]);
 
   return (
     <>
@@ -121,9 +107,14 @@ function AuthGate() {
       >
         <Stack.Screen name="index" options={{ gestureEnabled: false, animation: "none" }} />
         <Stack.Screen name="home" options={{ gestureEnabled: false, animation: "fade", animationDuration: 100 }} />
-        <Stack.Screen name="recipies" options={{ gestureEnabled: false, animation: "fade", animationDuration: 100 }} />
+        <Stack.Screen name="recipes" options={{ gestureEnabled: false, animation: "fade", animationDuration: 100 }} />
         <Stack.Screen name="pantry" options={{ gestureEnabled: false, animation: "fade", animationDuration: 100 }} />
         <Stack.Screen name="shopping" options={{ gestureEnabled: false, animation: "fade", animationDuration: 100 }} />
+        <Stack.Screen name="profile" options={{ gestureEnabled: false, animation: "fade", animationDuration: 100 }} />
+        <Stack.Screen name="get-inspired" options={{ animation: "ios_from_right" }} />
+        <Stack.Screen name="trending" options={{ animation: "ios_from_right" }} />
+        <Stack.Screen name="favorites" options={{ animation: "ios_from_right" }} />
+        <Stack.Screen name="what-can-i-make" options={{ animation: "ios_from_right" }} />
         <Stack.Screen name="mealPlan" options={{ animation: "ios_from_right" }} />
         <Stack.Screen name="shoppingList" options={{ animation: "ios_from_right" }} />
         <Stack.Screen name="recipe/[id]" options={{ animation: "ios_from_right" }} />
@@ -144,6 +135,7 @@ export default function RootLayout() {
   // Load stored JWT on cold start
   useEffect(() => {
     useAuthStore.getState().load();
+    useUserStore.getState().hydrateUsername();
   }, []);
 
   // Hydrate language preference and apply RTL before first render

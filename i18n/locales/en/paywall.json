@@ -1,5 +1,5 @@
 {
-  "title": "Unlock Dlishe Pro",
+  "title": "Unlock Bite Seeker Pro",
   "subtitle": {
     "default": "Unlock additional features and remove usage limits",
     "extraction_limit": "You've reached your free extraction limit this month",
@@ -54,6 +54,15 @@
   "restoreFailed": {
     "title": "Restore failed",
     "message": "Something went wrong."
+  },
+  "gate": {
+    "title": "Pro Feature",
+    "featureRequires": "\"{{feature}}\" requires Pro access.",
+    "howToUnlock": "How to unlock Pro",
+    "holdSolbite": "Hold {{threshold}}+ SOLBITE tokens in your connected wallet. Pro status is checked automatically.",
+    "currentStatus": "Current status: Free tier",
+    "getSolbite": "Get SOLBITE on pump.fun",
+    "maybeLater": "Maybe later"
   },
   "terms": {
     "ios": "Payment will be charged to your Apple ID account at confirmation of purchase. Subscription automatically renews unless canceled at least 24 hours before the end of the current period. You can manage and cancel your subscriptions in your App Store account settings.",
