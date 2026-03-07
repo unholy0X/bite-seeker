@@ -1,0 +1,67 @@
+{
+  "errorTitle": "Error",
+  "generic": "Something went wrong. Please try again.",
+  "network": "No internet connection. Check your network and try again.",
+  "session": "Your session needs a refresh. Please sign out and back in.",
+  "connection": "Please check your connection and try again.",
+  "recipe": {
+    "loadFailed": "Failed to load recipe",
+    "deleteFailed": "Delete failed",
+    "deleteMessage": "Couldn't delete the recipe. Please try again.",
+    "saveFailed": "Save failed",
+    "saveMessage": "Couldn't save this recipe. Please try again.",
+    "clearFailed": "Couldn't clear recipes",
+    "deleteBulkFailed": "Couldn't delete recipes",
+    "partialDelete_one": "Failed to delete {{count}} recipe. Please try again.",
+    "partialDelete_other": "Failed to delete {{count}} recipes. Please try again."
+  },
+  "mealPlan": {
+    "addFailed": "Couldn't add recipe",
+    "removeEntryFailed": "Failed to remove entry",
+    "notSynced": "Meal plan not synced yet. Pull down to refresh.",
+    "loadFailed": "Failed to load meal plan"
+  },
+  "extract": {
+    "noInternet": "No internet connection. Please check your network and try again.",
+    "videoDownload": "We couldn't download this video. The link may be private, region-locked, or unsupported.",
+    "instagram": "Instagram blocked this request. Try copying the recipe text or taking a screenshot instead.",
+    "tiktok": "We couldn't access this TikTok. It may be private or region-restricted.",
+    "timeout": "The request took too long. Please try again.",
+    "rateLimit": "Too many requests. Please wait a moment and try again.",
+    "notFound": "We couldn't find a recipe at this link. Double-check the URL.",
+    "noRecipe": "We couldn't find a recipe in this content. Try a different link or take a photo.",
+    "longError": "Something went wrong processing this link. Try a different one or take a photo instead.",
+    "connectionLost": "Connection lost. Please check your network and try again.",
+    "recipeNotFound": "We couldn't find the recipe. Please try again.",
+    "tooLong": "This is taking too long. Give it another try?",
+    "pasteLink": "Paste a recipe link to get started.",
+    "noPhoto": "No photo selected.",
+    "gettingReady": "Getting things ready…",
+    "readingRecipe": "Reading your recipe…"
+  },
+  "shopping": {
+    "createFailed": "Failed to create list",
+    "shoppingListFailed": "Something went wrong",
+    "shoppingListMessage": "Couldn't create the shopping list. Please try again.",
+    "updateItemFailed": "Couldn't update item",
+    "removeItemFailed": "Couldn't remove item",
+    "completeListFailed": "Couldn't complete list",
+    "mergeFailed": "Failed to merge lists",
+    "deleteFailed": "Failed to delete list",
+    "generateFailed": "Failed to generate shopping list"
+  },
+  "pantry": {
+    "removeItemFailed": "Couldn't remove item",
+    "clearFailed": "Couldn't reset pantry"
+  },
+  "home": {
+    "pantryMatchFailed": "Couldn't load matches. Check your connection."
+  },
+  "prefs": {
+    "saveFailed": "Failed to save preferences"
+  },
+  "config": {
+    "missingKey": "Configuration Error",
+    "missingKeyMessage": "Missing EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY. Please contact support."
+  }
+}

@@ -1,0 +1,1424 @@
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  RefreshControl,
+  Pressable,
+  ActivityIndicator,
+  Alert,
+  Modal,
+  StatusBar,
+  Linking,
+} from "react-native";
+import { Image } from "expo-image";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import {
+  fetchRecipeById,
+  deleteRecipe,
+  cloneRecipe,
+} from "../../services/recipes";
+import {
+  createShoppingList,
+  addFromRecipe,
+  deleteShoppingList,
+} from "../../services/shopping";
+import { useRecipeStore, useShoppingStore, useSubscriptionStore } from "../../store";
+import { useTranslation } from "react-i18next";
+import { useLanguageStore } from "../../store/languageStore";
+import { getFontFamily } from "../../utils/fonts";
+import ArrowLeftIcon from "../../components/icons/ArrowLeftIcon";
+import RecipePlaceholder from "../../components/RecipePlaceholder";
+import PrepChecklistSheet from "../../components/recipies/PrepShecklistSheet";
+import StepTimerSheet from "../../components/recipies/StepTimerSheet";
+import DoneSheet from "../../components/recipies/DoneSheet";
+import Svg, { Path } from "react-native-svg";
+import { LinearGradient } from "expo-linear-gradient";
+import { sc } from "../../utils/deviceScale";
+import KitchenExportButton from "../../components/KitchenExportButton";
+import SolbiteGateSheet from "../../components/paywall/SolbiteGateSheet";
+
+// ─── Design tokens ───────────────────────────────────────────────
+const C = {
+  bg: "#F4F5F7",
+  card: "#ffffff",
+  textPrimary: "#111111",
+  textSecondary: "#6b6b6b",
+  textMeta: "#B4B4B4",
+  greenDark: "#385225",
+  greenBright: "#7FEF80",
+  greenLight: "#DFF7C4",
+  orangeLight: "#FDC597",
+  orangeDark: "#7A4A21",
+  blueDark: "#28457A",
+  blueLight: "#9BC6FB",
+  purpleLight: "#CCB7F9",
+  purpleDark: "#4A2D73",
+  border: "#EAEAEA",
+  error: "#cc3b3b",
+};
+
+// ─── Helpers ─────────────────────────────────────────────────────
+function formatTime(minutes, t) {
+  if (!minutes) return null;
+  if (minutes < 60) return t("time.minOnly", { m: minutes, ns: "common" });
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m ? t("time.hourMin", { h, m, ns: "common" }) : t("time.hourOnly", { h, ns: "common" });
+}
+
+function formatDuration(seconds, t) {
+  if (!seconds) return null;
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  if (m === 0) return t("time.seconds_short", { s, ns: "common" });
+  return s
+    ? `${t("time.minutes_short", { m, ns: "common" })} ${t("time.seconds_short", { s, ns: "common" })}`
+    : t("time.minutes_short", { m, ns: "common" });
+}
+
+// ─── Icons ───────────────────────────────────────────────────────
+const PlayIcon = ({ size = 14, color = "#385225" }) => (
+  <Svg width={size} height={size + 1} viewBox="0 0 13 14" fill="none">
+    <Path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M11.3101 4.92362C12.646 5.6658 12.646 7.58702 11.3101 8.32921L2.89382 13.0048C1.59551 13.7262 -8.06676e-05 12.7874 -8.06027e-05 11.3021L-8.01939e-05 1.95072C-8.0129e-05 0.465462 1.59551 -0.473371 2.89382 0.247932L11.3101 4.92362Z"
+      fill={color}
+    />
+  </Svg>
+);
+
+const DeleteIcon = ({ size = 17, color = "#FF0000" }) => (
+  <Svg width={size} height={size} viewBox="0 0 17 17" fill="none">
+    <Path
+      d="M13.8125 3.89587L13.3735 10.997C13.2613 12.8112 13.2053 13.7184 12.7506 14.3706C12.5257 14.6931 12.2362 14.9652 11.9005 15.1697C11.2215 15.5834 10.3126 15.5834 8.49483 15.5834C6.67471 15.5834 5.76463 15.5834 5.08516 15.1689C4.74923 14.9641 4.45967 14.6914 4.2349 14.3684C3.78029 13.7152 3.72544 12.8068 3.61577 10.99L3.1875 3.89587"
+      stroke={color}
+      strokeLinecap="round"
+    />
+    <Path
+      d="M2.125 3.89579H14.875M11.3728 3.89579L10.8893 2.89827C10.568 2.23564 10.4074 1.90433 10.1304 1.6977C10.069 1.65186 10.0039 1.61109 9.93579 1.57579C9.62901 1.41663 9.26082 1.41663 8.52444 1.41663C7.76957 1.41663 7.39217 1.41663 7.08027 1.58246C7.01115 1.61922 6.94519 1.66164 6.88308 1.70929C6.60283 1.92429 6.44628 2.26772 6.13318 2.9546L5.70415 3.89579"
+      stroke={color}
+      strokeLinecap="round"
+    />
+    <Path d="M6.729 11.6875V7.4375" stroke={color} strokeLinecap="round" />
+    <Path d="M10.2708 11.6875V7.4375" stroke={color} strokeLinecap="round" />
+  </Svg>
+);
+
+// ─── Sub-components ──────────────────────────────────────────────
+
+function MetaPill({ label, color, styles: st }) {
+  return (
+    <View style={[st.pill, color && { backgroundColor: color }]}>
+      <Text style={st.pillText}>{label}</Text>
+    </View>
+  );
+}
+
+function SectionTitle({ children, styles: st }) {
+  return <Text style={st.sectionTitle}>{children}</Text>;
+}
+
+function IngredientRow({ ingredient, isLast }) {
+  const { t } = useTranslation("recipe");
+  const qty = ingredient.quantity
+    ? `${ingredient.quantity}${ingredient.unit ? ` ${ingredient.unit}` : ""}`
+    : null;
+
+  return (
+    <View style={[s.ingredientRow, !isLast && s.ingredientBorder]}>
+      <View style={s.ingredientDot} />
+      <View style={s.ingredientContent}>
+        <Text style={s.ingredientName}>
+          {qty ? <Text style={s.ingredientQty}>{qty} </Text> : null}
+          {ingredient.name}
+          {ingredient.isOptional ? (
+            <Text style={s.ingredientOptional}>{` ${t("detail.optional")}`}</Text>
+          ) : null}
+        </Text>
+        {ingredient.notes ? (
+          <Text style={s.ingredientNotes}>{ingredient.notes}</Text>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+function StepRow({ step }) {
+  return (
+    <View style={s.stepRow}>
+      <View style={s.stepNumber}>
+        <Text style={s.stepNumberText}>{step.stepNumber}</Text>
+      </View>
+      <View style={s.stepContent}>
+        <Text style={s.stepInstruction}>{step.instruction}</Text>
+        {step.technique || step.durationSeconds ? (
+          <View style={s.stepMetaRow}>
+            {step.technique ? (
+              <View style={s.stepChip}>
+                <Text style={s.stepChipText}>{step.technique}</Text>
+              </View>
+            ) : null}
+            {step.durationSeconds ? (
+              <View style={s.stepChip}>
+                <Text style={s.stepChipText}>
+                  {formatDuration(step.durationSeconds, t)}
+                </Text>
+              </View>
+            ) : null}
+            {step.temperature ? (
+              <View style={s.stepChip}>
+                <Text style={s.stepChipText}>{step.temperature}</Text>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+        {step.tip ? (
+          <View style={s.tipBanner}>
+            <Text style={s.tipText}>{step.tip}</Text>
+          </View>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+function NutritionItem({ label, value, unit, styles: st }) {
+  if (value == null) return null;
+  return (
+    <View style={st.nutritionItem}>
+      <Text style={st.nutritionValue}>
+        {Math.round(value)}
+        {unit}
+      </Text>
+      <Text style={st.nutritionLabel}>{label}</Text>
+    </View>
+  );
+}
+
+// ─── Main Screen ─────────────────────────────────────────────────
+
+export default function RecipeDetailScreen() {
+  const { id, cook } = useLocalSearchParams();
+  const router = useRouter();
+  const { t } = useTranslation("recipe");
+  const language = useLanguageStore((st) => st.language);
+  const isRTL = useLanguageStore((st) => st.isRTL);
+  const FONT = useMemo(() => ({
+    regular: getFontFamily(language, "regular"),
+    medium: getFontFamily(language, "medium"),
+    semibold: getFontFamily(language, "semibold"),
+  }), [language]);
+  const s = useMemo(() => makeStyles(FONT, isRTL), [FONT, isRTL]);
+
+  const [recipe, setRecipe] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isAddingToList, setIsAddingToList] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Cooking mode state
+  const [cookingOpen, setCookingOpen] = useState(false);
+  const [cookingPhase, setCookingPhase] = useState("prep");
+  const [currentStep, setCurrentStep] = useState(0);
+  const [checkedIngredients, setCheckedIngredients] = useState({});
+
+  const refreshList = useRecipeStore((state) => state.refresh);
+  const myRecipes = useRecipeStore((state) => state.recipes);
+  const entitlement = useSubscriptionStore((state) => state.entitlement);
+  const isPro = entitlement === "pro" || entitlement === "admin";
+  const [kitchenGateVisible, setKitchenGateVisible] = useState(false);
+
+  // A recipe is "own" if it exists in the user's recipe list (by id or as a clone source)
+  const isOwn = recipe && myRecipes.some((r) => r.id === recipe.id);
+  const alreadySaved =
+    recipe &&
+    !isOwn &&
+    myRecipes.some(
+      (r) => r.sourceRecipeId === recipe.id || r.id === recipe.id
+    );
+
+  const handleDelete = () => {
+    Alert.alert(
+      t("detail.deleteRecipe"),
+      t("detail.deleteConfirm", { title: recipe?.title }),
+      [
+        { text: t("buttons.cancel", { ns: "common" }), style: "cancel" },
+        {
+          text: t("buttons.delete", { ns: "common" }),
+          style: "destructive",
+          onPress: async () => {
+            setIsDeleting(true);
+            try {
+              await deleteRecipe({ recipeId: id });
+              await refreshList({});
+              router.back();
+            } catch (err) {
+              setIsDeleting(false);
+              Alert.alert(t("errors:recipe.deleteFailed"), t("errors:recipe.deleteMessage"));
+            }
+          },
+        },
+      ],
+    );
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await cloneRecipe({ recipeId: id });
+      await refreshList({});
+      setSaved(true);
+    } catch (err) {
+      const msg = err?.message || "";
+      if (msg.includes("already")) {
+        setSaved(true);
+      } else {
+        Alert.alert(t("errors:recipe.saveFailed"), t("errors:recipe.saveMessage"));
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setIsLoading(true);
+      setError("");
+      try {
+        const data = await fetchRecipeById({ recipeId: id });
+        if (!cancelled) {
+          setRecipe(data);
+          // Prefetch thumbnail so it's ready when the hero renders
+          if (data?.thumbnailUrl) {
+            Image.prefetch(data.thumbnailUrl);
+          }
+        }
+      } catch (err) {
+        if (!cancelled) setError(err?.message || t("errors:recipe.loadFailed"));
+      } finally {
+        if (!cancelled) setIsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  // Auto-open immersive cooking mode when navigated from "Let's cook!"
+  useEffect(() => {
+    if (cook === "1" && recipe && !isLoading) {
+      setCookingPhase("prep");
+      setCookingOpen(true);
+    }
+  }, [cook, recipe, isLoading]);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      const data = await fetchRecipeById({ recipeId: id });
+      setRecipe(data);
+    } catch {
+      // Keep existing data on refresh failure
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [id]);
+
+
+  if (isLoading) {
+    return (
+      <View style={s.screen}>
+        <SafeAreaView style={s.centered}>
+          <ActivityIndicator size="large" color={C.greenDark} />
+          <Text style={s.loadingText}>{t("detail.loading")}</Text>
+        </SafeAreaView>
+      </View>
+    );
+  }
+
+  if (error || !recipe) {
+    return (
+      <View style={s.screen}>
+        <SafeAreaView style={s.safeTop} edges={["top"]}>
+          <BackButton onPress={() => router.back()} styles={s} />
+          <View style={s.centered}>
+            <Text style={s.errorText}>{error || t("detail.notFound")}</Text>
+          </View>
+        </SafeAreaView>
+      </View>
+    );
+  }
+
+  const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
+  const ingredients = recipe.ingredients || [];
+  const steps = recipe.steps || [];
+  const nutrition = recipe.nutrition;
+  const dietary = recipe.dietaryInfo;
+
+  const sections = {};
+  ingredients.forEach((ing) => {
+    const key = ing.section || "Ingredients";
+    if (!sections[key]) sections[key] = [];
+    sections[key].push(ing);
+  });
+  const sectionEntries = Object.entries(sections);
+
+  const dietaryBadges = [];
+  if (dietary) {
+    if (dietary.isVegetarian) dietaryBadges.push("dietary.vegetarian");
+    if (dietary.isVegan) dietaryBadges.push("dietary.vegan");
+    if (dietary.isGlutenFree) dietaryBadges.push("dietary.glutenFree");
+    if (dietary.isDairyFree) dietaryBadges.push("dietary.dairyFree");
+    if (dietary.isNutFree) dietaryBadges.push("dietary.nutFree");
+    if (dietary.isKeto) dietaryBadges.push("dietary.keto");
+    if (dietary.isHalal) dietaryBadges.push("dietary.halal");
+    if (dietary.isKosher) dietaryBadges.push("dietary.kosher");
+  }
+
+  // Cooking mode helpers
+  const sortedSteps = steps.slice().sort((a, b) => a.stepNumber - b.stepNumber);
+
+  const handleNextStep = () => {
+    if (currentStep >= sortedSteps.length - 1) {
+      setCookingPhase("done");
+    } else {
+      setCurrentStep((s) => s + 1);
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 0) setCurrentStep((s) => s - 1);
+  };
+
+  return (
+    <View style={s.screen}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={s.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={C.greenDark}
+          />
+        }
+      >
+        {/* Hero */}
+        <View style={s.heroWrap}>
+          {recipe.thumbnailUrl ? (
+            <>
+              <Image
+                source={{ uri: recipe.thumbnailUrl }}
+                style={s.heroImage}
+                transition={200}
+                cachePolicy="memory-disk"
+                placeholder={null}
+              />
+              {/* <View style={s.heroGradient} /> */}
+              <LinearGradient
+                colors={["rgba(0,0,0,0.85)", "rgba(0,0,0,0)"]}
+                start={{ x: 0.5, y: 1 }}
+                end={{ x: 0.5, y: 0 }}
+                style={s.heroGradient}
+              />
+            </>
+          ) : (
+            <RecipePlaceholder
+              title={recipe.title}
+              variant="hero"
+              style={s.heroImage}
+            />
+          )}
+          <SafeAreaView style={s.heroOverlay} edges={["top"]}>
+            <BackButton light onPress={() => router.back()} styles={s} />
+          </SafeAreaView>
+          <View style={s.heroContent}>
+            <Text style={s.heroTitle}>{recipe.title}</Text>
+            {recipe.sourceUrl ? (
+              <Pressable
+                style={s.heroPlay}
+                onPress={() => Linking.openURL(recipe.sourceUrl)}
+              >
+                <PlayIcon />
+              </Pressable>
+            ) : null}
+          </View>
+        </View>
+
+        <View style={s.body}>
+          {/* Language badge — shown only when recipe language differs from current app language */}
+          {recipe.contentLanguage && recipe.contentLanguage !== language ? (
+            <View style={s.langBadge}>
+              <Text style={s.langBadgeText}>
+                {{ en: "English", fr: "Français", ar: "العربية" }[recipe.contentLanguage] ?? recipe.contentLanguage.toUpperCase()}
+              </Text>
+            </View>
+          ) : null}
+
+          {/* Description */}
+          {recipe.description ? (
+            <Text style={s.description}>{recipe.description}</Text>
+          ) : null}
+
+          {/* Inline Meta */}
+          <View style={s.metaInline}>
+            {totalTime > 0 ? (
+              <Text style={s.metaInlineText}>{formatTime(totalTime, t)}</Text>
+            ) : null}
+            {totalTime > 0 && recipe.difficulty ? (
+              <Text style={s.metaDot}>·</Text>
+            ) : null}
+            {recipe.difficulty ? (
+              <Text style={s.metaInlineText}>{t(`difficulty.${recipe.difficulty.toLowerCase()}`, { defaultValue: recipe.difficulty })}</Text>
+            ) : null}
+            {recipe.difficulty && recipe.servings ? (
+              <Text style={s.metaDot}>·</Text>
+            ) : null}
+            {recipe.servings ? (
+              <Text style={s.metaInlineText}>{t("units.servings", { count: recipe.servings, ns: "common" })}</Text>
+            ) : null}
+          </View>
+
+          {/* Tags */}
+          {recipe.tags?.length > 0 ? (
+            <View style={s.tagsRow}>
+              {recipe.tags.map((tag, i) => (
+                <View key={i} style={s.tag}>
+                  <Text style={s.tagText}>#{tag}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
+
+          {/* Dietary Badges */}
+          {dietaryBadges.length > 0 ? (
+            <View style={s.dietaryRow}>
+              {dietaryBadges.map((badge, i) => (
+                <View key={i} style={s.dietaryBadge}>
+                  <Text style={s.dietaryText}>{t(badge)}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
+
+          {/* Nutrition */}
+          {nutrition &&
+            (nutrition.calories ||
+              nutrition.protein ||
+              nutrition.carbs ||
+              nutrition.fat) ? (
+            <View style={s.card}>
+              <SectionTitle styles={s}>{t("detail.nutrition")}</SectionTitle>
+              <View style={s.nutritionGrid}>
+                <NutritionItem
+                  label={t("nutrition.calories")}
+                  value={nutrition.calories}
+                  unit=""
+                  styles={s}
+                />
+                <NutritionItem
+                  label={t("nutrition.protein")}
+                  value={nutrition.protein}
+                  unit={t("nutrition.unitG")}
+                  styles={s}
+                />
+                <NutritionItem label={t("nutrition.carbs")} value={nutrition.carbs} unit={t("nutrition.unitG")} styles={s} />
+                <NutritionItem label={t("nutrition.fat")} value={nutrition.fat} unit={t("nutrition.unitG")} styles={s} />
+                <NutritionItem label={t("nutrition.fiber")} value={nutrition.fiber} unit={t("nutrition.unitG")} styles={s} />
+              </View>
+            </View>
+          ) : null}
+
+          {/* Ingredients */}
+          {ingredients.length > 0 ? (
+            <View style={s.card}>
+              <View style={s.ingredientsHeader}>
+                <View>
+                  <SectionTitle styles={s}>{t("detail.ingredients")}</SectionTitle>
+                  <Text style={s.countText}>{t("units.items", { count: ingredients.length, ns: "common" })}</Text>
+                </View>
+                <Pressable
+                  style={s.addToListBtn}
+                  onPress={async () => {
+                    setIsAddingToList(true);
+                    let createdList = null;
+                    try {
+                      createdList = await createShoppingList({
+                        name: recipe.title,
+                      });
+                      const result = await addFromRecipe({
+                        listId: createdList.id,
+                        recipeId: id,
+                      });
+                      const addedCount =
+                        result?.count || result?.items?.length || 0;
+                      if (addedCount === 0) {
+                        try {
+                          await deleteShoppingList({
+                            listId: createdList.id,
+                          });
+                        } catch { }
+                        Alert.alert(
+                          t("detail.noIngredientsTitle"),
+                          t("detail.noIngredients"),
+                        );
+                      } else {
+                        useShoppingStore.setState((state) => ({
+                          lists: [
+                            {
+                              ...createdList,
+                              itemCount: addedCount,
+                              checkedCount: 0,
+                            },
+                            ...(state.lists || []),
+                          ],
+                        }));
+                        Alert.alert(
+                          t("detail.shoppingListCreated"),
+                          t("detail.ingredientsAdded", { count: addedCount, title: recipe.title }),
+                        );
+                      }
+                    } catch (err) {
+                      const msg = err?.message || "";
+                      if (msg.includes("already")) {
+                        Alert.alert(
+                          t("detail.alreadyAdded"),
+                          t("detail.alreadyAddedMessage"),
+                        );
+                      } else {
+                        if (createdList?.id) {
+                          try {
+                            await deleteShoppingList({
+                              listId: createdList.id,
+                            });
+                          } catch { }
+                        }
+                        Alert.alert(
+                          t("errors:shopping.shoppingListFailed"),
+                          t("errors:shopping.shoppingListMessage"),
+                        );
+                      }
+                    } finally {
+                      setIsAddingToList(false);
+                    }
+                  }}
+                  disabled={isAddingToList}
+                >
+                  {isAddingToList ? (
+                    <ActivityIndicator size="small" color={C.greenDark} />
+                  ) : (
+                    <Text style={s.addToListBtnText}>{t("detail.addToList")}</Text>
+                  )}
+                </Pressable>
+              </View>
+
+              {sectionEntries.map(([section, items], si) => (
+                <View key={si} style={s.ingredientsCard}>
+                  <View style={s.ingredientsHeaderRow}>
+                    <Text style={s.ingredientsTitle}>{section}</Text>
+                  </View>
+                  <View style={s.ingredientsList}>
+                    {items.map((ing, i) => (
+                      <Text key={ing.id || i} style={s.ingredientsBullet}>
+                        • {ing.name}
+                      </Text>
+                    ))}
+                  </View>
+                </View>
+              ))}
+            </View>
+          ) : null}
+
+          {/* Steps */}
+          <View style={s.card}>
+            <SectionTitle styles={s}>{t("detail.instructions")}</SectionTitle>
+            {steps.length > 0 ? (
+              <>
+                <Text style={s.countText}>{t("detail.steps", { count: steps.length })}</Text>
+                {steps
+                  .sort((a, b) => a.stepNumber - b.stepNumber)
+                  .map((step, i) => (
+                    <View key={step.id || i} style={s.stepCard}>
+                      <View style={s.stepBadge}>
+                        <Text style={s.stepBadgeText}>{step.stepNumber}</Text>
+                      </View>
+                      <Text style={s.stepCardText}>{step.instruction}</Text>
+                    </View>
+                  ))}
+              </>
+            ) : (
+              <Text style={s.emptySteps}>{t("detail.noInstructions")}</Text>
+            )}
+          </View>
+
+          {/* Actions */}
+          <View style={s.actionsZone}>
+            {isOwn ? (
+              <>
+                {sortedSteps.length > 0 && (
+                  <Pressable
+                    style={s.primaryBtn}
+                    onPress={() => {
+                      setCookingPhase("prep");
+                      setCurrentStep(0);
+                      setCheckedIngredients({});
+                      setCookingOpen(true);
+                    }}
+                  >
+                    <View style={s.primaryBtnContent}>
+                      <PlayIcon size={12} />
+                      <Text style={s.primaryBtnText}>{t("detail.startCooking")}</Text>
+                    </View>
+                  </Pressable>
+                )}
+                {isPro ? (
+                  <KitchenExportButton
+                    recipeId={recipe.id}
+                    t={t}
+                    FONT={FONT}
+                    initialUrl={recipe.cookidooUrl}
+                    onSuccess={(newUrl) =>
+                      setRecipe((prev) => ({ ...prev, cookidooUrl: newUrl }))
+                    }
+                  />
+                ) : (
+                  <Pressable
+                    style={s.kitchenGateBtn}
+                    onPress={() => setKitchenGateVisible(true)}
+                  >
+                    <Text style={[s.kitchenGateBtnText, { fontFamily: FONT.semibold }]}>
+                      {t("detail.kitchenExport")}
+                    </Text>
+                  </Pressable>
+                )}
+                <SolbiteGateSheet
+                  visible={kitchenGateVisible}
+                  onClose={() => setKitchenGateVisible(false)}
+                  featureName={t("detail.kitchenExport")}
+                />
+                <Pressable
+                  style={s.deleteBtn}
+                  onPress={handleDelete}
+                  disabled={isDeleting}
+                >
+                  {isDeleting ? (
+                    <ActivityIndicator size="small" color="#FF0000" />
+                  ) : (
+                    <View style={s.deleteRow}>
+                      <DeleteIcon />
+                      <Text style={s.deleteBtnText}>{t("detail.deleteRecipe")}</Text>
+                    </View>
+                  )}
+                </Pressable>
+              </>
+            ) : saved || alreadySaved ? (
+              <View style={s.savedBanner}>
+                <Text style={s.savedText}>{t("detail.savedToCollection")}</Text>
+              </View>
+            ) : (
+              <Pressable
+                style={({ pressed }) => [
+                  s.saveButton,
+                  pressed && s.saveButtonPressed,
+                ]}
+                onPress={handleSave}
+                disabled={isSaving}
+              >
+                {isSaving ? (
+                  <ActivityIndicator size="small" color="#ffffff" />
+                ) : (
+                  <Text style={s.saveButtonText}>{t("detail.saveToCollection")}</Text>
+                )}
+              </Pressable>
+            )}
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Cooking mode — full-screen immersive */}
+      <Modal
+        visible={cookingOpen}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={() => setCookingOpen(false)}
+      >
+        <StatusBar barStyle="dark-content" />
+        <View style={s.cookingModal}>
+          {cookingPhase === "prep" && (
+            <PrepChecklistSheet
+              ingredients={ingredients}
+              checkedIngredients={checkedIngredients}
+              onToggle={(idx) =>
+                setCheckedIngredients((prev) => ({ ...prev, [idx]: !prev[idx] }))
+              }
+              onBack={() => setCookingOpen(false)}
+              onReady={() => {
+                setCookingPhase("steps");
+                setCurrentStep(0);
+              }}
+            />
+          )}
+          {cookingPhase === "steps" && sortedSteps.length > 0 && sortedSteps[currentStep] && (
+            <StepTimerSheet
+              step={sortedSteps[currentStep]}
+              currentStep={currentStep}
+              totalSteps={sortedSteps.length}
+              onQuit={() => setCookingOpen(false)}
+              onPrev={handlePrevStep}
+              onNext={handleNextStep}
+            />
+          )}
+          {cookingPhase === "steps" && (!sortedSteps.length || !sortedSteps[currentStep]) && (
+            <DoneSheet
+              title={recipe?.title}
+              imageUri={recipe?.thumbnailUrl}
+              totalSteps={0}
+              totalTime={totalTime}
+              onBack={() => setCookingOpen(false)}
+              onServe={() => setCookingOpen(false)}
+            />
+          )}
+          {cookingPhase === "done" && (
+            <DoneSheet
+              title={recipe?.title}
+              imageUri={recipe?.thumbnailUrl}
+              totalSteps={sortedSteps.length}
+              totalTime={totalTime}
+              onBack={() => setCookingPhase("steps")}
+              onServe={() => setCookingOpen(false)}
+            />
+          )}
+        </View>
+      </Modal>
+    </View>
+  );
+}
+
+// ─── Back Button ─────────────────────────────────────────────────
+
+function BackButton({ onPress, light, styles: st }) {
+  const { t } = useTranslation("common");
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[st.backButton, light && st.backButtonLight]}
+    >
+      <ArrowLeftIcon
+        width={sc(10)}
+        height={sc(10)}
+        color={light ? "#ffffff" : C.textSecondary}
+      />
+      <Text style={[st.backButtonText, light && st.backButtonTextLight]}>
+        {t("buttons.back")}
+      </Text>
+    </Pressable>
+  );
+}
+
+// ─── Styles ──────────────────────────────────────────────────────
+
+function makeStyles(FONT, isRTL = false) {
+  return StyleSheet.create({
+    screen: {
+      flex: 1,
+      backgroundColor: C.bg,
+    },
+    cookingModal: {
+      flex: 1,
+      backgroundColor: C.bg,
+    },
+    scrollContent: {
+      paddingBottom: 60,
+    },
+    centered: {
+      flex: 1,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    loadingText: {
+      marginTop: 12,
+      fontSize: sc(14),
+      fontFamily: FONT.regular,
+      color: C.textSecondary,
+    },
+    errorText: {
+      fontSize: sc(14),
+      fontFamily: FONT.regular,
+      color: C.error,
+      textAlign: "center",
+      paddingHorizontal: 20,
+    },
+
+    // Hero
+    heroWrap: { position: "relative" },
+    heroImage: {
+      width: "100%",
+      height: 340,
+      borderBottomLeftRadius: 30,
+      borderBottomRightRadius: 30,
+    },
+    heroGradient: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      bottom: 0,
+      height: 130,
+      borderBottomLeftRadius: 30,
+      borderBottomRightRadius: 30,
+    },
+    heroOverlay: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      right: 0,
+      paddingHorizontal: 20,
+      paddingTop: 8,
+    },
+    heroContent: {
+      position: "absolute",
+      left: 20,
+      right: 20,
+      bottom: 20,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-end",
+    },
+    heroTitle: {
+      color: "#fff",
+      fontSize: sc(24),
+      fontFamily: FONT.semibold,
+      width: "75%",
+    },
+
+    safeTop: {
+      flex: 1,
+      paddingHorizontal: 20,
+      paddingTop: 12,
+    },
+
+    // Back button
+    backButton: {
+      flexDirection: "row",
+      alignItems: "center",
+      alignSelf: "flex-start",
+      backgroundColor: "rgba(255, 255, 255, 0.85)",
+      borderRadius: 999,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+    },
+    backButtonLight: {
+      backgroundColor: "rgba(0, 0, 0, 0.3)",
+    },
+    backButtonText: {
+      marginStart: 8,
+      fontSize: sc(12),
+      fontFamily: FONT.medium,
+      color: C.textSecondary,
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+    backButtonTextLight: {
+      color: "#ffffff",
+    },
+    heroPlay: {
+      width: sc(44),
+      height: sc(44),
+      borderRadius: sc(22),
+      backgroundColor: C.greenBright,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+
+    // Body
+    body: {
+      paddingHorizontal: 20,
+      paddingTop: sc(20),
+    },
+    description: {
+      marginTop: sc(10),
+      fontSize: sc(14),
+      fontFamily: FONT.regular,
+      color: C.textSecondary,
+      lineHeight: sc(22),
+      letterSpacing: isRTL ? 0 : -0.05,
+      writingDirection: isRTL ? "rtl" : "ltr",
+      textAlign: isRTL ? "right" : "left",
+    },
+
+    // Inline Meta
+    metaInline: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginTop: 12,
+    },
+    metaInlineText: {
+      fontSize: sc(13),
+      color: C.textMeta,
+      fontFamily: FONT.regular,
+    },
+    metaDot: {
+      marginHorizontal: 6,
+      color: C.textMeta,
+    },
+
+    // Meta pills (unused now but kept)
+    metaRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      marginTop: 16,
+    },
+    pill: {
+      backgroundColor: C.border,
+      borderRadius: 999,
+      paddingHorizontal: 14,
+      paddingVertical: 6,
+    },
+    pillText: {
+      fontSize: sc(12),
+      fontFamily: FONT.medium,
+      color: C.textSecondary,
+      textTransform: "capitalize",
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+
+    // Language badge
+    langBadge: {
+      alignSelf: "flex-start",
+      backgroundColor: "#FDF2E8",
+      borderRadius: 8,
+      paddingHorizontal: 9,
+      paddingVertical: 3,
+      marginBottom: 10,
+      borderWidth: 1,
+      borderColor: "#F0A45E",
+    },
+    langBadgeText: {
+      fontSize: sc(11),
+      fontFamily: FONT.semibold,
+      color: C.orangeDark,
+      letterSpacing: 0.3,
+    },
+
+    // Tags
+    tagsRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      marginTop: 12,
+    },
+    tag: {
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: C.border,
+      paddingHorizontal: 12,
+      paddingVertical: sc(5),
+    },
+    tagText: {
+      fontSize: sc(12),
+      fontFamily: FONT.regular,
+      color: C.textMeta,
+      lineHeight: sc(18),
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+
+    // Dietary
+    dietaryRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      marginTop: 12,
+    },
+    dietaryBadge: {
+      backgroundColor: C.greenLight,
+      borderRadius: 999,
+      paddingHorizontal: 12,
+      paddingVertical: sc(5),
+    },
+    dietaryText: {
+      fontSize: sc(12),
+      fontFamily: FONT.medium,
+      color: C.greenDark,
+      lineHeight: sc(18),
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+
+    // Card
+    card: {
+      backgroundColor: C.card,
+      borderRadius: 20,
+      padding: 18,
+      marginTop: 20,
+    },
+    sectionTitle: {
+      fontSize: sc(20),
+      fontFamily: FONT.semibold,
+      color: C.textPrimary,
+      lineHeight: sc(28),
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+    countText: {
+      fontSize: sc(12),
+      fontFamily: FONT.regular,
+      color: C.textMeta,
+      marginTop: 4,
+      marginBottom: 14,
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+    emptySteps: {
+      fontSize: sc(14),
+      fontFamily: FONT.regular,
+      color: C.textSecondary,
+      marginTop: 12,
+      paddingBottom: 4,
+    },
+    ingredientsHeader: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+    },
+    addToListBtn: {
+      backgroundColor: C.greenLight,
+      borderRadius: 999,
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      minWidth: 70,
+      alignItems: "center",
+    },
+    addToListBtnText: {
+      fontSize: sc(13),
+      fontFamily: FONT.semibold,
+      color: C.greenDark,
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+
+    // Ingredients (new)
+    ingredientsCard: {
+      backgroundColor: "#fff",
+      borderRadius: 20,
+      padding: 16,
+      marginTop: 14,
+    },
+    ingredientsHeaderRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 10,
+    },
+    ingredientsIcon: {
+      width: 28,
+      height: 28,
+      marginEnd: 10,
+    },
+    ingredientsTitle: {
+      fontSize: sc(16),
+      fontFamily: FONT.semibold,
+      color: C.textPrimary,
+      lineHeight: sc(22),
+    },
+    ingredientsList: {
+      backgroundColor: "#F7F7F7",
+      borderRadius: 14,
+      padding: 12,
+    },
+    ingredientsBullet: {
+      fontSize: sc(14),
+      color: C.textPrimary,
+      fontFamily: FONT.regular,
+      marginBottom: 6,
+    },
+
+    // Steps (new)
+    stepCard: {
+      flexDirection: "row",
+      backgroundColor: "#F7F7F7",
+      borderRadius: 18,
+      padding: 14,
+      marginBottom: 12,
+      alignItems: "flex-start",
+    },
+    stepBadge: {
+      width: sc(30),
+      height: sc(30),
+      borderRadius: sc(15),
+      backgroundColor: C.greenLight,
+      alignItems: "center",
+      justifyContent: "center",
+      marginEnd: 10,
+    },
+    stepBadgeText: {
+      fontSize: sc(13),
+      fontFamily: FONT.semibold,
+      color: C.greenDark,
+    },
+    stepCardText: {
+      flex: 1,
+      fontSize: sc(14),
+      lineHeight: sc(20),
+      color: C.textPrimary,
+      writingDirection: isRTL ? "rtl" : "ltr",
+      textAlign: isRTL ? "right" : "left",
+    },
+
+    // Nutrition
+    nutritionGrid: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      marginTop: 14,
+    },
+    nutritionItem: {
+      backgroundColor: C.bg,
+      borderRadius: 16,
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+      alignItems: "center",
+      minWidth: 70,
+    },
+    nutritionValue: {
+      fontSize: sc(18),
+      fontFamily: FONT.semibold,
+      color: C.textPrimary,
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+    nutritionLabel: {
+      fontSize: sc(11),
+      fontFamily: FONT.regular,
+      color: C.textMeta,
+      marginTop: 2,
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+
+    // Actions zone
+    actionsZone: {
+      marginTop: 36,
+      paddingTop: 24,
+      borderTopWidth: 1,
+      borderTopColor: "#F0F0F0",
+      alignItems: "center",
+    },
+    primaryBtn: {
+      marginTop: 20,
+      backgroundColor: C.greenBright,
+      borderRadius: 999,
+      paddingVertical: 16,
+      alignItems: "center",
+      width: "100%",
+    },
+    primaryBtnContent: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+    },
+    primaryBtnText: {
+      color: C.greenDark,
+      fontSize: sc(16),
+      fontFamily: FONT.semibold,
+    },
+    kitchenGateBtn: {
+      marginTop: 14,
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "#385225",
+      borderRadius: 14,
+      paddingVertical: 14,
+      paddingHorizontal: 20,
+      width: "100%",
+      opacity: 0.5,
+    },
+    kitchenGateBtnText: {
+      color: "#ffffff",
+      fontSize: 15,
+    },
+    deleteBtn: {
+      marginTop: 14,
+      backgroundColor: "#FDECEC",
+      borderRadius: 999,
+      paddingVertical: 14,
+      alignItems: "center",
+      width: "100%",
+    },
+    deleteRow: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 8,
+    },
+    deleteBtnText: {
+      color: "#E24B4B",
+      fontSize: sc(15),
+      fontFamily: FONT.medium,
+    },
+    deleteButton: {
+      paddingVertical: 14,
+      paddingHorizontal: 32,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: "#F0D0D0",
+      backgroundColor: "#FFF5F5",
+    },
+    deleteButtonPressed: {
+      backgroundColor: "#FFE8E8",
+    },
+    deleteButtonText: {
+      fontSize: sc(14),
+      fontFamily: FONT.medium,
+      color: C.error,
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+    saveButton: {
+      paddingVertical: 14,
+      paddingHorizontal: 40,
+      borderRadius: 999,
+      backgroundColor: C.greenBright,
+      width: "100%",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    saveButtonPressed: {
+      opacity: 0.85,
+    },
+    saveButtonText: {
+      fontSize: sc(14),
+      fontFamily: FONT.semibold,
+      color: C.greenDark,
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+    savedBanner: {
+      paddingVertical: 14,
+      paddingHorizontal: 32,
+      borderRadius: 999,
+      backgroundColor: C.greenLight,
+      width: "100%",
+      justifyContent: "center",
+      alignContent: "center",
+    },
+    savedText: {
+      fontSize: sc(14),
+      fontFamily: FONT.medium,
+      color: C.greenDark,
+      letterSpacing: isRTL ? 0 : -0.05,
+      textAlign: "center",
+    },
+
+    // Old ingredient styles kept
+    ingredientRow: {
+      flexDirection: "row",
+      alignItems: "flex-start",
+      paddingVertical: 10,
+    },
+    ingredientBorder: {
+      borderBottomWidth: 1,
+      borderBottomColor: "#F0F0F0",
+    },
+    ingredientDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: C.greenBright,
+      marginTop: 6,
+      marginEnd: 12,
+    },
+    ingredientContent: { flex: 1 },
+    ingredientName: {
+      fontSize: sc(15),
+      fontFamily: FONT.regular,
+      color: C.textPrimary,
+      lineHeight: sc(22),
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+    ingredientQty: { fontFamily: FONT.semibold },
+    ingredientOptional: {
+      fontFamily: FONT.regular,
+      color: C.textMeta,
+      fontStyle: "italic",
+    },
+    ingredientNotes: {
+      fontSize: sc(12),
+      fontFamily: FONT.regular,
+      color: C.textMeta,
+      marginTop: 2,
+      fontStyle: "italic",
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+    ingredientSection: {
+      fontSize: sc(14),
+      fontFamily: FONT.semibold,
+      color: C.greenDark,
+      marginTop: 14,
+      marginBottom: 4,
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+
+    // Old steps styles kept
+    stepRow: {
+      flexDirection: "row",
+      marginBottom: 20,
+    },
+    stepNumber: {
+      width: sc(32),
+      height: sc(32),
+      borderRadius: sc(16),
+      backgroundColor: C.greenLight,
+      alignItems: "center",
+      justifyContent: "center",
+      marginEnd: 14,
+      marginTop: 2,
+    },
+    stepNumberText: {
+      fontSize: sc(14),
+      fontFamily: FONT.semibold,
+      color: C.greenDark,
+    },
+    stepContent: { flex: 1 },
+    stepInstruction: {
+      fontSize: sc(15),
+      fontFamily: FONT.regular,
+      color: C.textPrimary,
+      lineHeight: sc(24),
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+    stepMetaRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 6,
+      marginTop: 8,
+    },
+    stepChip: {
+      backgroundColor: C.bg,
+      borderRadius: 999,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+    },
+    stepChipText: {
+      fontSize: sc(11),
+      fontFamily: FONT.medium,
+      color: C.textSecondary,
+      textTransform: "capitalize",
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+    tipBanner: {
+      backgroundColor: "#FFF9F0",
+      borderLeftWidth: 3,
+      borderLeftColor: C.orangeLight,
+      borderRadius: 8,
+      padding: 10,
+      marginTop: 10,
+    },
+    tipText: {
+      fontSize: sc(13),
+      fontFamily: FONT.regular,
+      color: C.orangeDark,
+      fontStyle: "italic",
+      lineHeight: sc(20),
+      letterSpacing: isRTL ? 0 : -0.05,
+    },
+  });
+}

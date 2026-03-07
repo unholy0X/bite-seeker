@@ -1,0 +1,74 @@
+{
+  "cli": {
+    "version": ">= 16.28.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true",
+        "EXPO_PUBLIC_API_BASE_URL": "http://207.180.202.57:8080/api/v1",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://a8eaffc6b03a92f5d91b5724aa516e83@o4510866671730688.ingest.de.sentry.io/4510866674221136",
+        "EXPO_PUBLIC_SOLANA_RPC_URL": "https://api.mainnet-beta.solana.com",
+        "EXPO_PUBLIC_SOLBITE_MINT_ADDRESS": "FaqYPyaatHB5jtG9HJDu7r1w1NxF4okFMrW34DyQpump",
+        "EXPO_PUBLIC_SOLBITE_TREASURY_WALLET": "H31n2af398PDHDJN26XBUoRvgtHhqLahjHYz16gNwkj6",
+        "EXPO_PUBLIC_SOLBITE_PRO_THRESHOLD": "1000000000",
+        "EXPO_PUBLIC_SOLBITE_EXTRACTION_COST": "100000000",
+        "EXPO_PUBLIC_SOLBITE_PUMP_URL": "https://pump.fun/coin/FaqYPyaatHB5jtG9HJDu7r1w1NxF4okFMrW34DyQpump",
+        "EXPO_PUBLIC_APP_URI": "https://dlishe.com",
+        "EXPO_PUBLIC_DEMO_EMAIL": "appreviewer@dlishe.com",
+        "EXPO_PUBLIC_DEMO_PASSWORD": "DlisheReview2026!",
+        "EXPO_PUBLIC_DEMO_EMAIL_2": "dlishatest@gmail.com",
+        "EXPO_PUBLIC_DEMO_PASSWORD_2": "dlishatest2026",
+        "EXPO_PUBLIC_DEMO_TOKEN": "dlishe_demo_7f3a9c2e8b5d1f4a6c0e3b7d9f2a5c8e1b4d7f0a3c6e9b2"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true",
+        "EXPO_PUBLIC_API_BASE_URL": "http://207.180.202.57:8080/api/v1",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://a8eaffc6b03a92f5d91b5724aa516e83@o4510866671730688.ingest.de.sentry.io/4510866674221136",
+        "EXPO_PUBLIC_SOLANA_RPC_URL": "https://api.mainnet-beta.solana.com",
+        "EXPO_PUBLIC_SOLBITE_MINT_ADDRESS": "FaqYPyaatHB5jtG9HJDu7r1w1NxF4okFMrW34DyQpump",
+        "EXPO_PUBLIC_SOLBITE_TREASURY_WALLET": "H31n2af398PDHDJN26XBUoRvgtHhqLahjHYz16gNwkj6",
+        "EXPO_PUBLIC_SOLBITE_PRO_THRESHOLD": "1000000000",
+        "EXPO_PUBLIC_SOLBITE_EXTRACTION_COST": "100000000",
+        "EXPO_PUBLIC_SOLBITE_PUMP_URL": "https://pump.fun/coin/FaqYPyaatHB5jtG9HJDu7r1w1NxF4okFMrW34DyQpump",
+        "EXPO_PUBLIC_APP_URI": "https://dlishe.com",
+        "EXPO_PUBLIC_DEMO_EMAIL": "appreviewer@dlishe.com",
+        "EXPO_PUBLIC_DEMO_PASSWORD": "DlisheReview2026!",
+        "EXPO_PUBLIC_DEMO_EMAIL_2": "dlishatest@gmail.com",
+        "EXPO_PUBLIC_DEMO_PASSWORD_2": "dlishatest2026",
+        "EXPO_PUBLIC_DEMO_TOKEN": "dlishe_demo_7f3a9c2e8b5d1f4a6c0e3b7d9f2a5c8e1b4d7f0a3c6e9b2"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "http://207.180.202.57:8080/api/v1",
+        "EXPO_PUBLIC_SENTRY_DSN": "https://a8eaffc6b03a92f5d91b5724aa516e83@o4510866671730688.ingest.de.sentry.io/4510866674221136",
+        "EXPO_PUBLIC_SOLANA_RPC_URL": "https://api.mainnet-beta.solana.com",
+        "EXPO_PUBLIC_SOLBITE_MINT_ADDRESS": "FaqYPyaatHB5jtG9HJDu7r1w1NxF4okFMrW34DyQpump",
+        "EXPO_PUBLIC_SOLBITE_TREASURY_WALLET": "H31n2af398PDHDJN26XBUoRvgtHhqLahjHYz16gNwkj6",
+        "EXPO_PUBLIC_SOLBITE_PRO_THRESHOLD": "1000000000",
+        "EXPO_PUBLIC_SOLBITE_EXTRACTION_COST": "100000000",
+        "EXPO_PUBLIC_SOLBITE_PUMP_URL": "https://pump.fun/coin/FaqYPyaatHB5jtG9HJDu7r1w1NxF4okFMrW34DyQpump",
+        "EXPO_PUBLIC_APP_URI": "https://dlishe.com",
+        "EXPO_PUBLIC_DEMO_EMAIL": "appreviewer@dlishe.com",
+        "EXPO_PUBLIC_DEMO_PASSWORD": "DlisheReview2026!",
+        "EXPO_PUBLIC_DEMO_EMAIL_2": "dlishatest@gmail.com",
+        "EXPO_PUBLIC_DEMO_PASSWORD_2": "dlishatest2026",
+        "EXPO_PUBLIC_DEMO_TOKEN": "dlishe_demo_7f3a9c2e8b5d1f4a6c0e3b7d9f2a5c8e1b4d7f0a3c6e9b2"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
