@@ -240,7 +240,19 @@ export default function RecipeDetailScreen() {
     const next = !isFavorited;
     setIsFavorited(next);
     try {
-      await toggleFavorite({ recipeId: id, isFavorite: next });
+      let targetId = id;
+      if (!isOwn) {
+        // Recipe not owned by user — clone it first, then favorite the clone
+        let clone = myRecipes.find((r) => r.sourceRecipeId === id || r.id === id);
+        if (!clone) {
+          await cloneRecipe({ recipeId: id });
+          await refreshList({});
+          setSaved(true);
+          clone = useRecipeStore.getState().recipes.find((r) => r.sourceRecipeId === id || r.id === id);
+        }
+        if (clone) targetId = clone.id;
+      }
+      await toggleFavorite({ recipeId: targetId, isFavorite: next });
     } catch {
       setIsFavorited(!next);
     }

@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   image: {
-    height: 128,
+    height: 160,
     width: '100%',
   },
   subtitle: {

@@ -5,20 +5,33 @@ import { colors, radii } from '@/src/theme/tokens';
 
 type PantryHeaderProps = {
   onAddPress?: () => void;
+  onMenuPress?: () => void;
 };
 
-export function PantryHeader({ onAddPress }: PantryHeaderProps) {
+export function PantryHeader({ onAddPress, onMenuPress }: PantryHeaderProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Pantry</Text>
-      <Pressable onPress={onAddPress} style={styles.addButton}>
-        <Feather color={colors.accentText} name="plus" size={22} />
-      </Pressable>
+      <View style={styles.actions}>
+        {onMenuPress && (
+          <Pressable onPress={onMenuPress} hitSlop={10} style={styles.menuButton}>
+            <Feather color={colors.textSecondary} name="more-vertical" size={22} />
+          </Pressable>
+        )}
+        <Pressable onPress={onAddPress} style={styles.addButton}>
+          <Feather color={colors.accentText} name="plus" size={22} />
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  actions: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 8,
+  },
   addButton: {
     alignItems: 'center',
     backgroundColor: colors.accent,
@@ -31,6 +44,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  menuButton: {
+    alignItems: 'center',
+    height: 44,
+    justifyContent: 'center',
+    width: 44,
   },
   title: {
     color: colors.textPrimary,

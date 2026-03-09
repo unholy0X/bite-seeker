@@ -71,7 +71,7 @@ export function useMobileWallet() {
 
       // Step 2: we broadcast — full error visibility.
       // skipPreflight: false → simulation runs and fails fast with a readable
-      // error if the user has insufficient SOLBITE balance or the tx is invalid.
+      // error if the user has insufficient SKR balance or the tx is invalid.
       // We do NOT await confirmTransaction — the backend validates the txSig
       // on-chain itself, and confirmTransaction on the public RPC can time out
       // even when the tx succeeds, which would wrongly block the extraction.

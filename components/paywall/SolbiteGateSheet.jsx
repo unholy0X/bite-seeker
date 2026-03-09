@@ -6,30 +6,29 @@ import {
   Pressable,
   Linking,
 } from "react-native";
-import { useTranslation } from "react-i18next";
 import BottomSheetModal from "../BottomSheetModal";
 import { useSubscriptionStore } from "../../store";
 import { sc } from "../../utils/deviceScale";
-import { SOLBITE_PUMP_URL, SOLBITE_PRO_THRESHOLD, SOLBITE_DECIMALS } from "../../constants/solana";
+import { SEEKER_BUY_URL, SEEKER_PRO_THRESHOLD, SEEKER_DECIMALS } from "../../constants/solana";
 
-const PRO_DISPLAY_AMOUNT = (SOLBITE_PRO_THRESHOLD / Math.pow(10, SOLBITE_DECIMALS)).toLocaleString();
+const PRO_DISPLAY_AMOUNT = (SEEKER_PRO_THRESHOLD / Math.pow(10, SEEKER_DECIMALS)).toLocaleString();
 
 const C = {
   bg: "#F4F5F7",
   card: "#ffffff",
-  accent: "#2DD955",
+  accent: "#B6FF00",
+  accentDark: "#1A2400",
   textPrimary: "#111111",
   textSecondary: "#6b6b6b",
   textMuted: "#B4B4B4",
-  gold: "#F9A825",
+  skrGreen: "#00C853",
 };
 
 export default function SolbiteGateSheet({ visible, onClose, featureName }) {
-  const { t } = useTranslation("paywall");
   const entitlement = useSubscriptionStore((s) => s.entitlement);
 
-  const handleGetSolbite = () => {
-    Linking.openURL(SOLBITE_PUMP_URL).catch(() => {});
+  const handleGetSeeker = () => {
+    Linking.openURL(SEEKER_BUY_URL).catch(() => {});
     onClose();
   };
 
@@ -37,43 +36,55 @@ export default function SolbiteGateSheet({ visible, onClose, featureName }) {
     <BottomSheetModal visible={visible} onClose={onClose}>
       <View style={styles.container}>
         <View style={styles.badge}>
-          <Text style={styles.badgeEmoji}>🪙</Text>
+          <Text style={styles.badgeEmoji}>🪬</Text>
         </View>
 
-        <Text style={styles.title}>{t("gate.title", "Pro Feature")}</Text>
+        <Text style={styles.title}>Seeker Pro</Text>
         {featureName ? (
           <Text style={styles.subtitle}>
-            {t("gate.featureRequires", { feature: featureName, defaultValue: `"${featureName}" requires Pro access.` })}
+            This feature requires Pro access.
           </Text>
         ) : null}
 
         <View style={styles.infoCard}>
-          <Text style={styles.infoHeading}>{t("gate.howToUnlock", "How to unlock Pro")}</Text>
+          <Text style={styles.infoHeading}>How to unlock Pro</Text>
           <Text style={styles.infoBody}>
-            {t("gate.holdSolbite", { threshold: PRO_DISPLAY_AMOUNT, defaultValue: `Hold ${PRO_DISPLAY_AMOUNT}+ SOLBITE tokens in your connected wallet. Pro status is checked automatically.` })}
+            Hold {PRO_DISPLAY_AMOUNT}+ SKR tokens in your connected wallet to unlock unlimited extractions and all Pro features.
           </Text>
+        </View>
+
+        <View style={styles.costCard}>
+          <View style={styles.costRow}>
+            <Text style={styles.costLabel}>Extraction fee</Text>
+            <Text style={styles.costValue}>10 SKR</Text>
+          </View>
+          <View style={styles.costDivider} />
+          <View style={styles.costRow}>
+            <Text style={styles.costLabel}>Pro threshold</Text>
+            <Text style={[styles.costValue, { color: C.skrGreen }]}>{PRO_DISPLAY_AMOUNT} SKR → free</Text>
+          </View>
         </View>
 
         {entitlement !== "pro" && (
           <View style={styles.statusRow}>
             <View style={styles.statusDot} />
-            <Text style={styles.statusText}>
-              {t("gate.currentStatus", "Current status: Free tier")}
-            </Text>
+            <Text style={styles.statusText}>Current status: Free tier</Text>
           </View>
         )}
 
+        <View style={styles.burnNote}>
+          <Text style={styles.burnNoteText}>🔥 50% of all extraction fees are burned — reducing SKR supply and giving back to every holder in the Seeker community.</Text>
+        </View>
+
         <Pressable
           style={({ pressed }) => [styles.ctaButton, pressed && { opacity: 0.85 }]}
-          onPress={handleGetSolbite}
+          onPress={handleGetSeeker}
         >
-          <Text style={styles.ctaText}>
-            {t("gate.getSolbite", "Get SOLBITE on pump.fun")}
-          </Text>
+          <Text style={styles.ctaText}>Get SKR on Jupiter</Text>
         </Pressable>
 
         <Pressable style={styles.dismissRow} onPress={onClose}>
-          <Text style={styles.dismissText}>{t("gate.maybeLater", "Maybe later")}</Text>
+          <Text style={styles.dismissText}>Maybe later</Text>
         </Pressable>
       </View>
     </BottomSheetModal>
@@ -90,7 +101,7 @@ const styles = StyleSheet.create({
     width: sc(64),
     height: sc(64),
     borderRadius: sc(32),
-    backgroundColor: "rgba(249,168,37,0.12)",
+    backgroundColor: "rgba(0,200,83,0.12)",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: sc(16),
@@ -119,7 +130,7 @@ const styles = StyleSheet.create({
     backgroundColor: C.card,
     borderRadius: 16,
     padding: sc(16),
-    marginBottom: sc(16),
+    marginBottom: sc(10),
   },
   infoHeading: {
     fontSize: sc(14),
@@ -132,6 +143,34 @@ const styles = StyleSheet.create({
     fontFamily: "Inter_400Regular",
     color: C.textSecondary,
     lineHeight: sc(19),
+  },
+  costCard: {
+    width: "100%",
+    backgroundColor: C.card,
+    borderRadius: 16,
+    padding: sc(16),
+    marginBottom: sc(16),
+  },
+  costRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: sc(4),
+  },
+  costDivider: {
+    height: 1,
+    backgroundColor: "#F0F0F0",
+    marginVertical: sc(6),
+  },
+  costLabel: {
+    fontSize: sc(13),
+    fontFamily: "Inter_400Regular",
+    color: C.textSecondary,
+  },
+  costValue: {
+    fontSize: sc(13),
+    fontFamily: "Inter_600SemiBold",
+    color: C.textPrimary,
   },
   statusRow: {
     flexDirection: "row",
@@ -152,7 +191,7 @@ const styles = StyleSheet.create({
   },
   ctaButton: {
     width: "100%",
-    backgroundColor: C.gold,
+    backgroundColor: C.skrGreen,
     borderRadius: 14,
     paddingVertical: sc(16),
     alignItems: "center",
@@ -171,5 +210,21 @@ const styles = StyleSheet.create({
     fontSize: sc(14),
     fontFamily: "Inter_400Regular",
     color: C.textMuted,
+  },
+  burnNote: {
+    width: "100%",
+    backgroundColor: "rgba(0,200,83,0.08)",
+    borderRadius: 12,
+    padding: sc(12),
+    marginBottom: sc(14),
+    borderWidth: 1,
+    borderColor: "rgba(0,200,83,0.15)",
+  },
+  burnNoteText: {
+    fontSize: sc(12),
+    fontFamily: "Inter_400Regular",
+    color: C.textSecondary,
+    lineHeight: sc(18),
+    textAlign: "center",
   },
 });

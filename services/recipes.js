@@ -69,5 +69,5 @@ export async function fetchRecommendations({ getToken, filter, limit = 20 }) {
     params.set("maxTime", "30");
     params.set("mood", "quick");
   }
-  return authFetch(`/recommendations?${params}`);
+  return authFetch(`/recipes/recommendations?${params}`);
 }

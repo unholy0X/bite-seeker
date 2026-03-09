@@ -4,19 +4,18 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing } from '@/src/theme/tokens';
 
 import { PantryHeader } from '../components/pantry-header';
-import { PantrySearch } from '../components/pantry-search';
 import { PantrySectionsList } from '../components/pantry-sections-list';
 
 type PantryScreenProps = {
   onAddPress?: () => void;
+  onMenuPress?: () => void;
 };
 
-export function PantryScreen({ onAddPress }: PantryScreenProps) {
+export function PantryScreen({ onAddPress, onMenuPress }: PantryScreenProps) {
   return (
     <SafeAreaView edges={['top']} style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <PantryHeader onAddPress={onAddPress} />
-        <PantrySearch />
+        <PantryHeader onAddPress={onAddPress} onMenuPress={onMenuPress} />
         <PantrySectionsList />
       </ScrollView>
     </SafeAreaView>

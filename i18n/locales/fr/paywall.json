@@ -59,9 +59,9 @@
     "title": "Fonctionnalité Pro",
     "featureRequires": "\"{{feature}}\" nécessite un accès Pro.",
     "howToUnlock": "Comment débloquer le Pro",
-    "holdSolbite": "Détenez {{threshold}}+ jetons SOLBITE dans votre portefeuille connecté. Le statut Pro est vérifié automatiquement.",
+    "holdSolbite": "Détenez {{threshold}}+ jetons SKR dans votre portefeuille connecté. Le statut Pro est vérifié automatiquement.",
     "currentStatus": "Statut actuel : Niveau gratuit",
-    "getSolbite": "Obtenir SOLBITE sur pump.fun",
+    "getSolbite": "Obtenir SKR sur Jupiter",
     "maybeLater": "Peut-être plus tard"
   },
   "terms": {

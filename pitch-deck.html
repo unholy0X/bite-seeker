@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Bite Seeker — Pitch Deck</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --bg:#030712;
+  --sur:#111827;
+  --sur2:#1a2236;
+  --acc:#B6FF00;
+  --t1:#F3F5F8;
+  --t2:#9AA0AE;
+  --t3:#5A6072;
+  --div:rgba(255,255,255,0.07);
+}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--t1);
+  -webkit-print-color-adjust:exact;
+  print-color-adjust:exact;
+}
+
+@page{size:297mm 167mm;margin:0;}
+
+.slide{
+  width:297mm;
+  height:167mm;
+  background:var(--bg);
+  position:relative;
+  overflow:hidden;
+  page-break-after:always;
+  break-after:page;
+  display:flex;
+  flex-direction:column;
+}
+
+/* ── Slide number (top-right always) ── */
+.n{
+  position:absolute;
+  top:10mm;
+  right:11mm;
+  font-size:9px;
+  font-weight:500;
+  color:var(--t3);
+  letter-spacing:1.5px;
+  z-index:10;
+}
+
+/* ── Accent bar (left edge) ── */
+.bar{
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:3px;
+  background:var(--acc);
+}
+
+/* ── Rule ── */
+.rule{height:1px;background:var(--div);margin:5mm 0;}
+
+/* ── Type scale ── */
+.kicker{
+  font-size:9px;font-weight:700;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--acc);
+  margin-bottom:5mm;
+}
+.h-xl{font-size:52px;font-weight:900;letter-spacing:-2px;line-height:.95;color:var(--t1);}
+.h-lg{font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1.05;color:var(--t1);}
+.h-md{font-size:26px;font-weight:700;letter-spacing:-0.8px;line-height:1.1;color:var(--t1);}
+.h-sm{font-size:16px;font-weight:700;letter-spacing:-0.3px;color:var(--t1);}
+.body{font-size:13px;line-height:1.75;color:var(--t2);}
+.body-lg{font-size:16px;line-height:1.65;color:var(--t2);}
+.mono{font-family:monospace;font-size:11px;color:var(--acc);}
+.dim{color:var(--t3);}
+.hi{color:var(--acc);}
+
+/* ── Layout helpers ── */
+.pad{padding:10mm 11mm;}
+.row{display:flex;gap:8mm;}
+.col{flex:1;}
+.col2{flex:2;}
+.col3{flex:3;}
+
+/* ── Table ── */
+table.t{width:100%;border-collapse:collapse;}
+table.t th{
+  font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--t3);padding:7px 10px;border-bottom:1px solid var(--div);text-align:left;
+}
+table.t td{
+  font-size:12.5px;color:var(--t2);padding:9px 10px;
+  border-bottom:1px solid rgba(255,255,255,0.04);vertical-align:top;
+}
+table.t td b{color:var(--t1);font-weight:600;}
+table.t td.acc{color:var(--acc);font-weight:600;}
+
+/* ── List ── */
+ol.steps{list-style:none;display:flex;flex-direction:column;gap:7px;}
+ol.steps li{
+  display:flex;gap:10px;align-items:flex-start;
+  font-size:13px;color:var(--t2);line-height:1.5;
+}
+ol.steps li span.num{
+  flex-shrink:0;width:20px;height:20px;border-radius:50%;
+  background:var(--acc);color:#0B0E14;
+  font-size:10px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  margin-top:1px;
+}
+ol.steps li b{color:var(--t1);}
+
+ul.plain{list-style:none;display:flex;flex-direction:column;gap:6px;}
+ul.plain li{font-size:13px;color:var(--t2);line-height:1.5;padding-left:14px;position:relative;}
+ul.plain li::before{content:'—';position:absolute;left:0;color:var(--t3);}
+
+ul.check{list-style:none;display:flex;flex-direction:column;gap:7px;}
+ul.check li{font-size:12.5px;color:var(--t2);line-height:1.5;padding-left:18px;position:relative;}
+ul.check li::before{content:'✓';position:absolute;left:0;color:var(--acc);font-weight:700;font-size:11px;}
+
+/* ── Stat ── */
+.stat{display:flex;flex-direction:column;gap:3px;}
+.stat-n{font-size:36px;font-weight:900;letter-spacing:-1.5px;color:var(--acc);line-height:1;}
+.stat-l{font-size:10px;font-weight:500;color:var(--t3);letter-spacing:0.3px;margin-top:2px;}
+
+/* ── Divider line with label ── */
+.section-label{
+  font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+  color:var(--t3);margin-bottom:3mm;
+}
+
+/* ── Blockquote ── */
+bq{
+  display:block;
+  border-left:2px solid var(--acc);
+  padding:4px 12px;
+  font-size:13px;color:var(--t2);
+  font-style:italic;line-height:1.65;
+}
+
+/* ── Flow: two-column compare ── */
+.flow-col{flex:1;display:flex;flex-direction:column;gap:6px;}
+.flow-head{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:2mm;}
+.flow-step{
+  font-size:12px;color:var(--t2);line-height:1.4;
+  padding:7px 10px;
+  border:1px solid var(--div);
+  border-radius:6px;
+}
+.flow-step.hi{border-color:rgba(182,255,0,0.3);color:var(--t1);}
+.flow-arr{font-size:11px;color:var(--t3);text-align:center;padding:2px 0;}
+
+/* ── Team ── */
+.person-name{font-size:20px;font-weight:800;letter-spacing:-0.5px;color:var(--t1);margin-bottom:2px;}
+.person-role{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);margin-bottom:4mm;}
+
+/* ── Roadmap ── */
+.rm-phase{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--acc);margin-bottom:2px;}
+.rm-title{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:5px;}
+.rm-items{list-style:none;display:flex;flex-direction:column;gap:4px;}
+.rm-items li{font-size:11.5px;color:var(--t2);padding-left:10px;position:relative;}
+.rm-items li::before{content:'·';position:absolute;left:2px;color:var(--t3);}
+
+/* ── Subtle grid background ── */
+.grid-bg::after{
+  content:'';
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+  background-size:20mm 20mm;
+  pointer-events:none;
+}
+</style>
+</head>
+<body>
+
+
+<!-- ══════════════════════════════════════════════ 01 · COVER -->
+<div class="slide grid-bg">
+  <div class="bar"></div>
+  <span class="n">01 / 12</span>
+
+  <div class="pad" style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+
+    <div class="kicker" style="margin-bottom:7mm;">Monolith · Solana Hackathon 2025</div>
+
+    <div style="display:flex;align-items:flex-end;gap:6mm;margin-bottom:8mm;">
+      <div class="h-xl" style="font-size:72px;">BITE<br/><span class="hi">SEEKER</span></div>
+      <div style="padding-bottom:8px;max-width:240px;">
+        <div class="rule" style="margin:0 0 4mm;"></div>
+        <div class="body-lg" style="color:var(--t2);">Any recipe.<br/>Paid for with <span class="hi" style="font-weight:700;">SKR</span>.</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:14mm;border-top:1px solid var(--div);padding-top:6mm;">
+      <div class="stat"><div class="stat-n">10</div><div class="stat-l">SKR per extraction</div></div>
+      <div style="width:1px;background:var(--div);"></div>
+      <div class="stat"><div class="stat-n">1K</div><div class="stat-l">SKR = Pro forever</div></div>
+      <div style="width:1px;background:var(--div);"></div>
+      <div class="stat"><div class="stat-n">50%</div><div class="stat-l">of fees burned</div></div>
+      <div style="width:1px;background:var(--div);"></div>
+      <div class="stat"><div class="stat-n">3</div><div class="stat-l">languages — EN FR AR</div></div>
+    </div>
+
+  </div>
+
+  <div style="padding:5mm 11mm;border-top:1px solid var(--div);display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:10px;color:var(--t3);">Built by the Seeker community, for the Seeker community</span>
+    <span style="font-size:10px;font-weight:700;color:var(--acc);letter-spacing:0.5px;">BITE SEEKER</span>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ 02 · PROBLEM -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="n">02 / 12</span>
+
+  <div class="pad" style="flex:1;display:flex;gap:14mm;">
+
+    <div style="flex:1.2;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--div);padding-right:14mm;">
+      <div class="kicker">The problem</div>
+      <div class="h-lg" style="margin-bottom:6mm;">Five apps<br/>to cook dinner.</div>
+      <div class="body-lg">
+        Recipes live in bookmarks. Shopping lists live in a different app. Meal plans are spreadsheets. Pantry tracking doesn't exist.
+        <br/><br/>
+        Nothing connects what you <em>have</em> to what you can <em>cook</em> to what you need to <em>buy</em>.
+      </div>
+    </div>
+
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:8mm;">
+      <div>
+        <div class="section-label">For every home cook</div>
+        <ul class="plain">
+          <li>Saved links die in browser bookmarks</li>
+          <li>YouTube videos can't be searched by ingredient</li>
+          <li>Cookbook recipes buried in camera rolls</li>
+          <li>No single tool closes the loop</li>
+        </ul>
+      </div>
+      <div class="rule" style="margin:0;"></div>
+      <div>
+        <div class="section-label">For Seeker device holders</div>
+        <div class="body" style="color:var(--t1);">
+          Zero consumer apps on Solana Mobile serve everyday, non-financial needs. The kind of app you open before every meal.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ 03 · SOLUTION -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="n">03 / 12</span>
+
+  <div class="pad" style="flex:1;display:flex;flex-direction:column;">
+
+    <div style="margin-bottom:6mm;">
+      <div class="kicker">The solution</div>
+      <div class="h-lg">One app. <span class="hi">The whole loop.</span></div>
+    </div>
+
+    <table class="t" style="flex:1;">
+      <tr>
+        <th style="width:22%;">Feature</th>
+        <th>What it does</th>
+      </tr>
+      <tr>
+        <td><b>Extract</b></td>
+        <td>Paste a URL, YouTube link, or snap a cookbook page — Gemini parses it into a full structured recipe in 20–40 seconds</td>
+      </tr>
+      <tr>
+        <td><b>Pantry</b></td>
+        <td>Track what you have at home. Add manually or photograph your fridge — AI identifies every ingredient</td>
+      </tr>
+      <tr>
+        <td><b>What Can I Make?</b></td>
+        <td>Matches your pantry against your recipe library. Shows ingredient match percentage and what's missing</td>
+      </tr>
+      <tr>
+        <td><b>Meal Plan</b></td>
+        <td>Place recipes onto a weekly calendar — breakfast, lunch, dinner, snack — for any day of the week</td>
+      </tr>
+      <tr>
+        <td><b>Shopping List</b></td>
+        <td>Auto-generated from your meal plan. Works offline. Checkable in-store.</td>
+      </tr>
+      <tr>
+        <td><b class="hi">Pro (SKR)</b></td>
+        <td class="acc">Hold 1,000 SKR → unlimited extractions, forever. No subscription. No billing. Just hold.</td>
+      </tr>
+    </table>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ 04 · SKR INTEGRATION -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="n">04 / 12</span>
+
+  <div class="pad" style="flex:1;display:flex;gap:14mm;">
+
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--div);padding-right:14mm;">
+      <div class="kicker">Seeker-native</div>
+      <div class="h-lg" style="margin-bottom:6mm;">SKR is not<br/>bolted on.<br/><span class="hi">It is the<br/>business model.</span></div>
+      <div class="body">Holding SKR literally unlocks the app. That is a native reason to acquire and hold the Seeker community token — not just trade it.</div>
+    </div>
+
+    <div style="flex:1.2;display:flex;flex-direction:column;justify-content:center;gap:7mm;">
+
+      <div style="display:flex;gap:5mm;">
+        <div class="flow-col">
+          <div class="flow-head">Free user</div>
+          <div class="flow-step">Tap Extract Recipe</div>
+          <div class="flow-arr">↓</div>
+          <div class="flow-step">Wallet opens via MWA</div>
+          <div class="flow-arr">↓</div>
+          <div class="flow-step hi">Sign 10 SKR → treasury</div>
+          <div class="flow-arr">↓</div>
+          <div class="flow-step hi">Recipe extracted & saved</div>
+        </div>
+        <div style="width:1px;background:var(--div);align-self:stretch;"></div>
+        <div class="flow-col">
+          <div class="flow-head" style="color:var(--acc);">Pro user · 1,000+ SKR</div>
+          <div class="flow-step">Tap Extract Recipe</div>
+          <div class="flow-arr">↓</div>
+          <div class="flow-step hi">Balance checked on-chain</div>
+          <div class="flow-arr">↓</div>
+          <div class="flow-step hi" style="color:var(--acc);border-color:rgba(182,255,0,0.4);">1,000+ SKR held — FREE</div>
+          <div class="flow-arr">↓</div>
+          <div class="flow-step hi">Recipe extracted & saved</div>
+        </div>
+      </div>
+
+      <div class="rule" style="margin:0;"></div>
+      <ul class="plain" style="gap:5px;">
+        <li>Auth via Mobile Wallet Adapter — no email, no password</li>
+        <li><span class="mono">TransferChecked</span> instruction · verified on-chain · replay-protected</li>
+        <li><span class="mono">getTokenAccountsByOwner</span> live balance check per session</li>
+        <li>50% of all SKR collected is burned — supply reduces with every use</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ 05 · UX -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="n">05 / 12</span>
+
+  <div class="pad" style="flex:1;display:flex;gap:14mm;">
+
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--div);padding-right:14mm;">
+      <div class="kicker">User experience</div>
+      <div class="h-lg" style="margin-bottom:6mm;">Built for<br/>a kitchen,<br/><span class="hi">not a laptop.</span></div>
+      <div class="body">Every screen is a bottom sheet, swipe gesture, or full-bleed card. There is no hamburger menu. There is no desktop layout squeezed onto a phone.</div>
+    </div>
+
+    <div style="flex:1.3;display:flex;flex-direction:column;justify-content:center;gap:6mm;">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:5mm;">
+
+        <div>
+          <div class="h-sm" style="margin-bottom:3px;">Wallet auth</div>
+          <div class="body">Replaces the login form. One tap. Sign with Phantom. No email. No password. No account creation.</div>
+        </div>
+
+        <div>
+          <div class="h-sm" style="margin-bottom:3px;">Camera extraction</div>
+          <div class="body">Snap up to 3 photos of a cookbook page. AI reads ingredients, quantities, and steps — including handwritten recipes.</div>
+        </div>
+
+        <div>
+          <div class="h-sm" style="margin-bottom:3px;">Offline-resilient</div>
+          <div class="body">Zustand + SecureStore keep the full pantry and shopping list accessible with no signal — useful in actual supermarkets.</div>
+        </div>
+
+        <div>
+          <div class="h-sm" style="margin-bottom:3px;">RTL + i18n</div>
+          <div class="body">Full support for English, French, and Arabic with forced RTL layout. Recipes extracted in the user's own language.</div>
+        </div>
+
+      </div>
+
+      <div class="rule" style="margin:0;"></div>
+      <div class="body" style="color:var(--t3);">
+        No web version. No PWA. No Electron wrapper. MWA requires a physical Android device — this is not portable to a browser.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ 06 · DEMO FLOW -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="n">06 / 12</span>
+
+  <div class="pad" style="flex:1;display:flex;flex-direction:column;">
+
+    <div style="margin-bottom:7mm;">
+      <div class="kicker">Demo flow</div>
+      <div class="h-lg">Wallet to shopping list<br/><span class="hi">in under two minutes.</span></div>
+    </div>
+
+    <ol class="steps" style="flex:1;justify-content:center;">
+      <li><span class="num">1</span><div>Open app → Phantom wallet prompt → sign nonce → <b>authenticated</b>. No form. No email. One tap.</div></li>
+      <li><span class="num">2</span><div>Paste <span class="mono">youtube.com/watch?v=...</span> → tap <b>Grab Recipe</b> → wallet opens for payment.</div></li>
+      <li><span class="num">3</span><div>Sign the 10 SKR transfer → backend verifies on-chain via <span class="mono">getTransaction</span> → <b>extraction job starts</b>.</div></li>
+      <li><span class="num">4</span><div>20–40 seconds → full structured recipe: title, ingredients with quantities, steps, prep and cook time, difficulty.</div></li>
+      <li><span class="num">5</span><div>Drop recipe onto <b>Tuesday's dinner slot</b> in the weekly meal plan.</div></li>
+      <li><span class="num">6</span><div>Tap <b>Generate Shopping List</b> → every missing ingredient, grouped by category, checkable in-store.</div></li>
+    </ol>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ 07 · TECH STACK -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="n">07 / 12</span>
+
+  <div class="pad" style="flex:1;display:flex;flex-direction:column;">
+
+    <div style="margin-bottom:6mm;">
+      <div class="kicker">Architecture</div>
+      <div class="h-md">No off-chain oracle. No App Store billing. No oracle.<br/><span class="hi">Every critical check happens on-chain.</span></div>
+    </div>
+
+    <div class="row" style="flex:1;gap:10mm;">
+
+      <div class="col">
+        <div class="section-label" style="margin-bottom:3mm;">Mobile — Android APK</div>
+        <table class="t">
+          <tr><td style="width:40%;"><b>Runtime</b></td><td>Expo SDK 55 · React Native 0.83</td></tr>
+          <tr><td><b>Navigation</b></td><td>Expo Router — file-based, deep links</td></tr>
+          <tr><td><b>State</b></td><td>Zustand 5 · SecureStore persistence</td></tr>
+          <tr><td><b>Wallet</b></td><td>Mobile Wallet Adapter v2</td></tr>
+          <tr><td><b>Payments</b></td><td class="acc">SPL TransferChecked instruction</td></tr>
+          <tr><td><b>Balance</b></td><td class="acc">getTokenAccountsByOwner · 5-min cache</td></tr>
+        </table>
+      </div>
+
+      <div style="width:1px;background:var(--div);"></div>
+
+      <div class="col">
+        <div class="section-label" style="margin-bottom:3mm;">Backend — Go</div>
+        <table class="t">
+          <tr><td style="width:40%;"><b>API</b></td><td>Chi v5 · Postgres · Redis</td></tr>
+          <tr><td><b>Auth</b></td><td>Ed25519 nonce sign → JWT</td></tr>
+          <tr><td><b>AI</b></td><td>Google Gemini — URL, video, image</td></tr>
+          <tr><td><b>Payment verify</b></td><td class="acc">getTransaction · postTokenBalances</td></tr>
+          <tr><td><b>Pro check</b></td><td class="acc">getTokenAccountsByOwner · live per session</td></tr>
+          <tr><td><b>Replay guard</b></td><td>txSignatures stored in Postgres</td></tr>
+        </table>
+      </div>
+
+      <div style="width:1px;background:var(--div);"></div>
+
+      <div style="width:52mm;display:flex;flex-direction:column;justify-content:center;gap:5mm;">
+        <div>
+          <div class="section-label">Token</div>
+          <div style="font-size:16px;font-weight:800;color:var(--acc);margin-bottom:2px;">SEEKER (SKR)</div>
+          <div class="mono" style="font-size:9px;color:var(--t3);word-break:break-all;">SKRbvo6Gf7GondiT3BbTfuRDPqLWei4j2Qy2NPGZhW3</div>
+        </div>
+        <div class="rule" style="margin:0;"></div>
+        <ul class="plain" style="gap:4px;">
+          <li style="font-size:12px;">Classic SPL · 6 decimals</li>
+          <li style="font-size:12px;">10 SKR → extraction</li>
+          <li style="font-size:12px;">50% burned per tx</li>
+          <li style="font-size:12px;">1,000 SKR → Pro</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ 08 · STICKINESS -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="n">08 / 12</span>
+
+  <div class="pad" style="flex:1;display:flex;gap:14mm;">
+
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--div);padding-right:14mm;">
+      <div class="kicker">Retention</div>
+      <div class="h-lg" style="margin-bottom:6mm;">People open<br/>recipe apps<br/><span class="hi">before every meal.</span></div>
+      <div class="body">This is not a DeFi dashboard opened once a month. This is a tool with a genuine daily use case that accumulates switching cost over time.</div>
+    </div>
+
+    <div style="flex:1.3;display:flex;flex-direction:column;justify-content:center;gap:7mm;">
+
+      <table class="t">
+        <tr><th>Behaviour</th><th>Frequency</th></tr>
+        <tr><td>Look up a recipe</td><td class="acc">Daily</td></tr>
+        <tr><td>Check pantry before shopping</td><td><b>2–3× per week</b></td></tr>
+        <tr><td>Build a meal plan</td><td><b>Weekly</b></td></tr>
+        <tr><td>Use shopping list in-store</td><td><b>Weekly</b></td></tr>
+      </table>
+
+      <div class="rule" style="margin:0;"></div>
+
+      <div>
+        <div class="section-label" style="margin-bottom:3mm;">Why users don't leave</div>
+        <ul class="plain">
+          <li>Pantry data accumulates — the longer you use it, the more it knows</li>
+          <li>Meal plan history improves recipe suggestions over time</li>
+          <li>Pro is permanent while you hold SKR — there is no renewal, no churn</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ 09 · ELIGIBILITY -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="n">09 / 12</span>
+
+  <div class="pad" style="flex:1;display:flex;gap:14mm;">
+
+    <div style="flex:1;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--div);padding-right:14mm;">
+      <div class="kicker">Eligibility</div>
+      <div class="h-lg" style="margin-bottom:6mm;">Started from<br/>zero for<br/><span class="hi">this hackathon.</span></div>
+      <div class="body">No prior codebase. No outside capital. The app does not exist as a web version, a PWA, or an Electron wrapper.</div>
+    </div>
+
+    <div style="flex:1.3;display:flex;flex-direction:column;justify-content:center;">
+      <ul class="check">
+        <li>Project started within the 3-month eligibility window</li>
+        <li>No outside capital raised</li>
+        <li>Android APK produced via EAS Build — <span class="mono">buildType: "apk"</span></li>
+        <li>MWA requires a physical Android device — the wallet flow is impossible in a browser</li>
+        <li>Camera extraction via <span class="mono">expo-image-picker</span> — a mobile sensor, not a web API</li>
+        <li>Biometric auth via <span class="mono">expo-local-authentication</span> — device hardware</li>
+        <li>JWT and wallet address encrypted on-device via <span class="mono">expo-secure-store</span></li>
+        <li>Edge-to-edge layout, safe area insets, Android back gesture handling</li>
+        <li>Offline banner and push notifications — mobile OS primitives</li>
+        <li style="color:var(--t1);font-weight:600;">No web version. No PWA. No Electron wrapper.</li>
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ 10 · ROADMAP -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="n">10 / 12</span>
+
+  <div class="pad" style="flex:1;display:flex;flex-direction:column;">
+
+    <div style="margin-bottom:6mm;display:flex;justify-content:space-between;align-items:flex-end;">
+      <div>
+        <div class="kicker">Roadmap — creator economy</div>
+        <div class="h-md">The app becomes a platform.<br/><span class="hi">Chefs earn. Holders benefit.</span></div>
+      </div>
+      <div style="text-align:right;max-width:180px;">
+        <div class="body dim" style="font-size:11px;line-height:1.6;">Every SKR earned by a creator is paid by a user — no platform cut, no middleman. The protocol is the business model.</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:0;flex:1;">
+
+      <div style="flex:1;padding-right:8mm;border-right:1px solid var(--div);">
+        <div class="rm-phase">Now → Month 1</div>
+        <div class="rm-title">Ship & distribute</div>
+        <ul class="rm-items">
+          <li>Solana dApp Store listing</li>
+          <li>Public recipe sharing — any user can publish an extracted recipe</li>
+          <li>SKR Pro tier visible in Seeker wallet aggregators</li>
+        </ul>
+      </div>
+
+      <div style="flex:1;padding:0 8mm;border-right:1px solid var(--div);">
+        <div class="rm-phase">Month 2–3</div>
+        <div class="rm-title">Creator accounts</div>
+        <ul class="rm-items">
+          <li>Verified chef profiles — link wallet, set creator handle</li>
+          <li>Publish gated recipe packs: free tier previews, full content behind SKR paywall</li>
+          <li>Save-to-earn: every time a user saves a creator's recipe, creator earns a micro SKR cut</li>
+          <li>SKR-weighted community ranking — top recipes rise by holder votes</li>
+        </ul>
+      </div>
+
+      <div style="flex:1;padding:0 8mm;border-right:1px solid var(--div);">
+        <div class="rm-phase">Month 4–6</div>
+        <div class="rm-title">Monetisation layer</div>
+        <ul class="rm-items">
+          <li>Creator SKR subscriptions — fans pay monthly in SKR for exclusive drops</li>
+          <li>Tip in SKR directly from any recipe card — one tap, MWA signs</li>
+          <li>Co-authored recipes — split royalties on-chain, no escrow, no trust</li>
+          <li>50% burn on all creator tx fees — every creator sale reduces SKR supply</li>
+        </ul>
+      </div>
+
+      <div style="flex:1;padding-left:8mm;">
+        <div class="rm-phase" style="color:var(--t3);">Long term</div>
+        <div class="rm-title">Full marketplace</div>
+        <ul class="rm-items">
+          <li>Creator storefronts: meal plans, diet programs, full cookbooks — priced in SKR</li>
+          <li>Brand sponsorships settled on-chain — ingredient sponsors pay creators in SKR</li>
+          <li>Grocery delivery API: shopping list → cart in one tap, affiliate revenue in SKR</li>
+          <li>Seeker device NFC → instant pantry scan at checkout</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="rule"></div>
+    <div style="display:flex;gap:14mm;align-items:center;">
+      <div class="body dim" style="flex:1;">Every creator transaction burns 50% of the SKR fee — the bigger the creator economy grows, the faster the supply contracts.</div>
+      <div style="display:flex;gap:10mm;flex-shrink:0;">
+        <div class="stat"><div class="stat-n" style="font-size:22px;">50%</div><div class="stat-l">burned on every creator tx</div></div>
+        <div style="width:1px;background:var(--div);"></div>
+        <div class="stat"><div class="stat-n" style="font-size:22px;">0%</div><div class="stat-l">platform cut — SKR only</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ 11 · TEAM -->
+<div class="slide">
+  <div class="bar"></div>
+  <span class="n">11 / 12</span>
+
+  <div class="pad" style="flex:1;display:flex;gap:14mm;">
+
+    <div style="flex:1;display:flex;flex-direction:column;border-right:1px solid var(--div);padding-right:14mm;">
+      <div class="kicker">The team</div>
+      <div class="h-md" style="margin-bottom:8mm;">A student and<br/>a senior dev.<br/><span class="hi">One hackathon.<br/>One app.</span></div>
+      <div class="body" style="margin-bottom:6mm;">This is not a team of full-time founders with runway. It is a student learning to build on Solana, with just enough senior support on the infrastructure that would have blocked him.</div>
+      <div class="rule" style="margin:0 0 4mm;"></div>
+      <div class="body dim">Every screen in the demo was designed and built by someone submitting their first app to their first hackathon. That is the Seeker community.</div>
+    </div>
+
+    <div style="flex:1.5;display:flex;flex-direction:column;justify-content:center;gap:10mm;">
+
+      <div>
+        <div class="person-name">Faycal</div>
+        <div class="person-role">Mobile · React Native · Expo · UI/UX · France</div>
+        <ul class="plain" style="gap:4px;">
+          <li>CS student. First hackathon. First shipped app.</li>
+          <li>Built every screen, every animation, every user flow</li>
+          <li>Wallet auth, SKR payment, pantry, meal plan, shopping, i18n, dark theme, camera UI</li>
+          <li>Learned MWA and SPL token mechanics from scratch during this sprint</li>
+        </ul>
+        <bq style="margin-top:4mm;">"I wanted my first app to mean something to a real community. The Seeker ecosystem felt like the right place to start."</bq>
+      </div>
+
+      <div class="rule" style="margin:0;"></div>
+
+      <div>
+        <div class="person-name">Naoufal</div>
+        <div class="person-role">Backend · Go · Postgres · Solana RPC · DevOps</div>
+        <ul class="plain" style="gap:4px;">
+          <li>Senior software engineer — nights and weekends only</li>
+          <li>Go REST API, Ed25519 wallet auth, Solana RPC payment verification</li>
+          <li>Gemini AI extraction pipeline, multi-platform deployment, all infrastructure</li>
+          <li>On-chain payment verification and balance checks are production-grade and replay-protected</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════ 12 · THE ASK -->
+<div class="slide grid-bg">
+  <div class="bar"></div>
+  <span class="n">12 / 12</span>
+
+  <div class="pad" style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;">
+
+    <div class="kicker" style="justify-content:center;">The ask</div>
+
+    <div class="h-xl" style="max-width:640px;margin:0 auto 8mm;font-size:46px;line-height:1.0;">
+      Not a dashboard.<br/>Not a DEX.<br/><span class="hi">A recipe app.</span>
+    </div>
+
+    <div class="body-lg" style="max-width:500px;margin:0 auto 10mm;color:var(--t2);">
+      Where your SKR holdings replace your Netflix subscription — except the value stays on-chain, and you own it.
+    </div>
+
+    <div style="display:flex;gap:12mm;margin-bottom:10mm;">
+      <div class="stat" style="align-items:center;"><div class="stat-n">10 SKR</div><div class="stat-l">per extraction</div></div>
+      <div style="width:1px;background:var(--div);"></div>
+      <div class="stat" style="align-items:center;"><div class="stat-n">50%</div><div class="stat-l">burned forever</div></div>
+      <div style="width:1px;background:var(--div);"></div>
+      <div class="stat" style="align-items:center;"><div class="stat-n">1K SKR</div><div class="stat-l">= Pro, permanently</div></div>
+    </div>
+
+    <div style="font-size:22px;font-weight:800;letter-spacing:-0.5px;color:var(--t2);">
+      Bite Seeker. <span class="hi">Your kitchen, on-chain.</span>
+    </div>
+
+  </div>
+
+  <div style="padding:5mm 11mm;border-top:1px solid var(--div);display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:10px;color:var(--t3);">Android APK: [link] &nbsp;·&nbsp; GitHub: [link] &nbsp;·&nbsp; Demo: [link]</span>
+    <span style="font-size:10px;font-weight:700;color:var(--acc);letter-spacing:0.5px;">BITE SEEKER</span>
+  </div>
+</div>
+
+
+</body>
+</html>

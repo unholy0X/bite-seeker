@@ -19,7 +19,7 @@ export type WalletAction = {
 export const loginBenefits: LoginBenefit[] = [
   { id: 'extract', label: 'Extract recipes from any photo or URL', icon: 'camera' },
   { id: 'pantry', label: 'Manage your pantry & shopping lists', icon: 'shopping-bag' },
-  { id: 'solbite', label: 'Pay per extraction with SOLBITE tokens', icon: 'zap' },
+  { id: 'skr', label: 'Pay 10 SKR per extraction — free at 1K SKR', icon: 'zap' },
 ];
 
 export const walletActions: WalletAction[] = [

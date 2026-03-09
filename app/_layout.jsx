@@ -16,6 +16,8 @@ import UserSync from "../components/UserSync";
 import ErrorBoundary from "../components/ErrorBoundary";
 import OfflineBanner from "../components/OfflineBanner";
 import NotificationPermissionSheet from "../components/NotificationPermissionSheet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ONBOARDING_KEY } from "./onboarding";
 import { useSubscriptionStore } from "../store";
 import { useLanguageStore } from "../store/languageStore";
 import { useUserStore } from "../store/userStore";
@@ -38,18 +40,33 @@ function AuthGate() {
   const segments = useSegments();
   const token = useAuthStore((s) => s.token);
   const isAuthLoading = useAuthStore((s) => s.isLoading);
+  const [onboardingChecked, setOnboardingChecked] = React.useState(false);
+  const [onboardingDone, setOnboardingDone] = React.useState(false);
 
   useEffect(() => {
-    if (isAuthLoading) return;
+    AsyncStorage.getItem(ONBOARDING_KEY).then((val) => {
+      setOnboardingDone(!!val);
+      setOnboardingChecked(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isAuthLoading || !onboardingChecked) return;
     const path = `/${segments.join("/")}`;
     const isAuthRoute = path === "/" || path === "/sign-up";
+    const isOnboarding = path === "/onboarding";
 
-    if (!token && !isAuthRoute) {
+    if (token) {
+      // Authenticated — send to home from any auth/onboarding route
+      if (isAuthRoute || isOnboarding) router.replace("/home");
+    } else if (!onboardingDone && !isOnboarding) {
+      // First launch — show onboarding
+      router.replace("/onboarding");
+    } else if (onboardingDone && !isAuthRoute) {
+      // Onboarding done, not logged in, not on login page
       router.replace("/");
-    } else if (token && isAuthRoute) {
-      router.replace("/home");
     }
-  }, [token, isAuthLoading, segments, router]);
+  }, [token, isAuthLoading, onboardingChecked, onboardingDone, segments, router]);
 
   // Hydrate cached subscription state immediately
   useEffect(() => {
@@ -105,6 +122,7 @@ function AuthGate() {
           gestureEnabled: true,
         }}
       >
+        <Stack.Screen name="onboarding" options={{ gestureEnabled: false, animation: "none" }} />
         <Stack.Screen name="index" options={{ gestureEnabled: false, animation: "none" }} />
         <Stack.Screen name="home" options={{ gestureEnabled: false, animation: "fade", animationDuration: 100 }} />
         <Stack.Screen name="recipes" options={{ gestureEnabled: false, animation: "fade", animationDuration: 100 }} />

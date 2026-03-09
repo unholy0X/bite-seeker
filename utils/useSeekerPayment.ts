@@ -4,26 +4,30 @@ import { buildPaymentInstructions } from "./buildPaymentInstructions";
 import { useMobileWallet } from "./useMobileWallet";
 import { useAuthStore } from "../store/authStore";
 import {
-  SOLBITE_MINT_ADDRESS,
-  SOLBITE_TREASURY_WALLET,
-  SOLBITE_EXTRACTION_COST,
-  SOLBITE_DECIMALS,
-  SOLBITE_IS_TOKEN_2022,
+  SEEKER_MINT_ADDRESS,
+  SEEKER_TREASURY_WALLET,
+  SEEKER_EXTRACTION_COST,
+  SEEKER_DECIMALS,
+  SEEKER_IS_TOKEN_2022,
 } from "../constants/solana";
 
 /**
- * Hook to pay SOLBITE_EXTRACTION_COST per extraction.
+ * Hook to pay SEEKER_EXTRACTION_COST (10 SKR) per extraction.
+ * Pro users (hold 1000+ SKR) get free extractions — no wallet prompt.
  * Returns { payForExtraction, isPaying, payError }.
- * payForExtraction() resolves to a txSignature string on success.
+ * payForExtraction() resolves to a txSignature string, or null for Pro users.
  */
-export function useSolbitePayment() {
+export function useSeekerPayment() {
   const wallet = useMobileWallet();
   const [isPaying, setIsPaying] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
 
-  const payForExtraction = useCallback(async (isPro = false): Promise<string> => {
-    if (!SOLBITE_MINT_ADDRESS || !SOLBITE_TREASURY_WALLET) {
-      throw new Error("Payment not configured — SOLBITE_MINT_ADDRESS or SOLBITE_TREASURY_WALLET missing");
+  const payForExtraction = useCallback(async (isPro = false): Promise<string | null> => {
+    // Pro users hold 1000+ SKR — extractions are free, no on-chain transaction needed
+    if (isPro) return null;
+
+    if (!SEEKER_MINT_ADDRESS || !SEEKER_TREASURY_WALLET) {
+      throw new Error("Payment not configured — SEEKER_MINT_ADDRESS or SEEKER_TREASURY_WALLET missing");
     }
 
     setIsPaying(true);
@@ -33,16 +37,12 @@ export function useSolbitePayment() {
         useAuthStore.getState().walletAddress!
       );
 
-      const amount = isPro
-        ? Math.floor(SOLBITE_EXTRACTION_COST / 2)
-        : SOLBITE_EXTRACTION_COST;
-
       const instructions = await buildPaymentInstructions(fromWallet, {
-        mintAddress: SOLBITE_MINT_ADDRESS,
-        decimals: SOLBITE_DECIMALS,
-        amount,
-        treasuryWallet: SOLBITE_TREASURY_WALLET,
-        isToken2022: SOLBITE_IS_TOKEN_2022,
+        mintAddress: SEEKER_MINT_ADDRESS,
+        decimals: SEEKER_DECIMALS,
+        amount: SEEKER_EXTRACTION_COST,
+        treasuryWallet: SEEKER_TREASURY_WALLET,
+        isToken2022: SEEKER_IS_TOKEN_2022,
       });
 
       const txSig = await wallet.signAndSendTransaction(instructions);

@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { colors, spacing } from '@/src/theme/tokens';
 
+import { CommunityCard } from '../components/community-card';
 import { DiscoverGrid } from '../components/discover-grid';
 import { FeaturedCategoryRow } from '../components/featured-category-row';
 import { HomeHeader } from '../components/home-header';
@@ -31,6 +32,7 @@ export function HomeScreen({ onAddRecipePress, onRecipePress, onSearchPress }: H
         <MealCategoriesRow selectedId={selectedCategory} onSelect={setSelectedCategory} />
         <FeaturedCategoryRow selectedCategory={selectedCategory} onRecipePress={onRecipePress} />
         <TrendingSection onRecipePress={onRecipePress} />
+        <CommunityCard />
         <DiscoverGrid
           onCardPress={(cardId) => {
             if (cardId === 'discover') router.push('/get-inspired');

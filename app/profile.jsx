@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   View, Text, StyleSheet, Pressable, Alert, ScrollView,
-  TextInput, Linking, ActivityIndicator,
+  TextInput, ActivityIndicator,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
@@ -12,7 +12,7 @@ import { useAuthStore } from "../store/authStore";
 import { useUserStore } from "../store/userStore";
 import { useLanguageStore } from "../store/languageStore";
 import { useSubscriptionStore } from "../store";
-import { useSolbiteBalance } from "../utils/useSolbiteBalance";
+import { useSeekerBalance } from "../utils/useSeekerBalance";
 import SolbiteGateSheet from "../components/paywall/SolbiteGateSheet";
 
 function hashStr(s) {
@@ -99,7 +99,7 @@ export default function ProfileRoute() {
   const [nameInput, setNameInput] = useState(username || "");
   const [paywallVisible, setPaywallVisible] = useState(false);
 
-  const { balance, isLoading: balanceLoading, fetchBalance } = useSolbiteBalance(walletAddress);
+  const { balance, isLoading: balanceLoading, fetchBalance } = useSeekerBalance(walletAddress);
 
   useEffect(() => {
     fetchBalance();
@@ -177,10 +177,10 @@ export default function ProfileRoute() {
             <Text style={styles.walletShort}>{shortWallet}</Text>
           </View>
 
-          {/* ── SOLBITE balance card ── */}
+          {/* ── SKR balance card ── */}
           <View style={styles.balanceCard}>
             <View style={styles.balanceMeta}>
-              <Text style={styles.balanceLabel}>SOLBITE Balance</Text>
+              <Text style={styles.balanceLabel}>SKR Balance</Text>
               <Pressable onPress={() => fetchBalance(true)} hitSlop={16} style={styles.refreshBtn}>
                 {balanceLoading
                   ? <ActivityIndicator color={colors.accent} size="small" />
@@ -254,17 +254,6 @@ export default function ProfileRoute() {
             </View>
             <Text style={styles.signOutLabel}>Sign Out</Text>
           </Pressable>
-
-          {/* ── Legal ── */}
-          <View style={styles.legalRow}>
-            <Pressable onPress={() => Linking.openURL("https://biteseeker.app/terms")}>
-              <Text style={styles.legalLink}>Terms of Use</Text>
-            </Pressable>
-            <Text style={styles.legalDot}>·</Text>
-            <Pressable onPress={() => Linking.openURL("https://biteseeker.app/privacy")}>
-              <Text style={styles.legalLink}>Privacy Policy</Text>
-            </Pressable>
-          </View>
 
         </ScrollView>
       </SafeAreaView>
@@ -480,14 +469,5 @@ const styles = StyleSheet.create({
   },
   signOutLabel: { color: "#FF6B6B", fontSize: 15, fontWeight: "600" },
 
-  // ── Legal ──
-  legalRow: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: spacing.xl,
-    gap: 8,
-  },
-  legalLink: { fontSize: 13, color: colors.textMuted, textDecorationLine: "underline" },
-  legalDot: { fontSize: 13, color: colors.textMuted },
+
 });

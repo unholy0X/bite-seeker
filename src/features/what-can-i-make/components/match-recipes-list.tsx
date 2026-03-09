@@ -18,7 +18,14 @@ export function MatchRecipesList({ onRecipePress }: MatchRecipesListProps) {
 
   useEffect(() => {
     fetchRecommendations({ getToken: undefined, filter: undefined, limit: 20 })
-      .then((data: any) => setRecipes(data?.items || []))
+      .then((data: any) => {
+        const all = [
+          ...(data?.readyToCook || []),
+          ...(data?.almostReady || []),
+          ...(data?.needsShopping || []),
+        ];
+        setRecipes(all);
+      })
       .catch((err: any) => setError(err?.message || 'Failed to load'))
       .finally(() => setLoading(false));
   }, []);
@@ -49,35 +56,34 @@ export function MatchRecipesList({ onRecipePress }: MatchRecipesListProps) {
 
   return (
     <View>
-      {recipes.map((recipe: any, index: number) => {
-        const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
+      {recipes.map((item: any, index: number) => {
+        const r = item.recipe || item;
+        const totalTime = (r.prepTime || 0) + (r.cookTime || 0);
         const meta = [
           totalTime > 0 ? `${totalTime} min` : null,
-          recipe.difficulty || null,
+          r.difficulty || null,
         ].filter(Boolean).join(' · ');
 
-        const matchPercent = recipe.matchScore != null
-          ? Math.round(recipe.matchScore * 100)
-          : recipe.matchPercent || 0;
+        const matchPercent = item.matchScore ?? 0;
 
-        const missing = recipe.missingIngredients;
+        const missing = item.missingIngredients;
         const missingInfo = Array.isArray(missing) && missing.length > 0
-          ? `Missing: ${missing.slice(0, 2).join(', ')}${missing.length > 2 ? '…' : ''}`
+          ? `Missing: ${missing.slice(0, 2).map((m: any) => m.ingredient || m).join(', ')}${missing.length > 2 ? '…' : ''}`
           : 'All ingredients available';
 
         return (
           <MatchRecipeCard
-            key={recipe.id}
+            key={r.id}
             onPress={onRecipePress}
             recipe={{
-              id: recipe.id,
-              title: recipe.title,
+              id: r.id,
+              title: r.title,
               meta,
               matchPercent,
               missingInfo,
               tone: TONES[index % TONES.length],
-              imageAlt: recipe.title,
-              thumbnailUrl: recipe.thumbnailUrl || null,
+              imageAlt: r.title,
+              thumbnailUrl: r.thumbnailUrl || null,
             }}
           />
         );

@@ -59,9 +59,9 @@
     "title": "Pro Feature",
     "featureRequires": "\"{{feature}}\" requires Pro access.",
     "howToUnlock": "How to unlock Pro",
-    "holdSolbite": "Hold {{threshold}}+ SOLBITE tokens in your connected wallet. Pro status is checked automatically.",
+    "holdSolbite": "Hold {{threshold}}+ SKR tokens in your connected wallet. Pro status is checked automatically.",
     "currentStatus": "Current status: Free tier",
-    "getSolbite": "Get SOLBITE on pump.fun",
+    "getSolbite": "Get SKR on Jupiter",
     "maybeLater": "Maybe later"
   },
   "terms": {

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from "react";
-import { View, Text, StyleSheet, Image, Pressable, TextInput } from "react-native";
+import { View, Text, StyleSheet, Image, Pressable, TextInput, ActivityIndicator } from "react-native";
 import { sc } from "../../utils/deviceScale";
 import ArrowLeftIcon from "../icons/ArrowLeftIcon";
 import LinkIcon from "../icons/LinkIcon";
@@ -10,7 +10,7 @@ import { useRouter } from "expo-router";
 import { useExtractStore, useSubscriptionStore } from "../../store";
 import SolbiteGateSheet from "../paywall/SolbiteGateSheet";
 import { useTranslation } from "react-i18next";
-import { useSolbitePayment } from "../../utils/useSolbitePayment";
+import { useSeekerPayment } from "../../utils/useSeekerPayment";
 
 const C = {
   bg: "#0E131D",
@@ -34,7 +34,7 @@ export default function AddRecipeSheetContent({ onPressBack }) {
   const { t } = useTranslation("recipe");
   const entitlement = useSubscriptionStore((s) => s.entitlement);
   const isPro = entitlement === "pro" || entitlement === "admin";
-  const { payForExtraction, isPaying } = useSolbitePayment();
+  const { payForExtraction, isPaying } = useSeekerPayment();
   const pendingExtraction = useRef(null);
 
   const handleBack = () => { setCapturedImages([]); reset(); onPressBack(); };
@@ -206,13 +206,20 @@ export default function AddRecipeSheetContent({ onPressBack }) {
         />
       </View>
 
+      {isPaying && (
+        <View style={styles.payingRow}>
+          <ActivityIndicator size="small" color={C.accent} />
+          <Text style={styles.payingText}>Confirm in wallet…</Text>
+        </View>
+      )}
+
       <Pressable
-        style={[styles.primaryButton, (!url.trim() || isRunning) && styles.primaryButtonDisabled]}
+        style={[styles.primaryButton, (!url.trim() || isRunning || isPaying) && styles.primaryButtonDisabled]}
         onPress={() => withPaymentGate(runExtractFromUrl)}
         disabled={!url.trim() || isRunning || isPaying}
       >
         <SparkleBadgeIcon width={22} height={22} />
-        <Text style={styles.primaryText}>{t("add.grabRecipe", "Grab recipe")}</Text>
+        <Text style={styles.primaryText}>{isPro ? t("add.grabRecipe", "Grab recipe") : `Grab recipe · ${isPaying ? "…" : "10 SKR"}`}</Text>
       </Pressable>
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -280,6 +287,8 @@ const styles = StyleSheet.create({
   secondaryText: { fontSize: sc(14), fontWeight: "500", color: C.secondary },
 
   errorText: { marginTop: 8, fontSize: sc(12), color: C.error, textAlign: "center" },
+  payingRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 10, marginBottom: 2 },
+  payingText: { fontSize: sc(13), color: C.accent, fontWeight: "500" },
 
   dividerRow: { flexDirection: "row", alignItems: "center", marginVertical: 16 },
   divider: { flex: 1, height: 1, backgroundColor: C.divider },

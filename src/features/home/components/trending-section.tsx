@@ -34,17 +34,18 @@ export function TrendingSection({ onRecipePress }: TrendingSectionProps) {
             ].filter(Boolean).join(' · ');
 
             return (
-              <TrendingRecipeCard
-                key={recipe.id}
-                recipe={{
-                  id: recipe.id,
-                  title: recipe.title,
-                  subtitle: meta,
-                  imageAlt: recipe.title,
-                  thumbnailUrl: recipe.thumbnailUrl || null,
-                }}
-                onPress={onRecipePress}
-              />
+              <View key={recipe.id} style={styles.cardWrapper}>
+                <TrendingRecipeCard
+                  recipe={{
+                    id: recipe.id,
+                    title: recipe.title,
+                    subtitle: meta,
+                    imageAlt: recipe.title,
+                    thumbnailUrl: recipe.thumbnailUrl || null,
+                  }}
+                  onPress={onRecipePress}
+                />
+              </View>
             );
           })}
         </View>
@@ -56,8 +57,12 @@ export function TrendingSection({ onRecipePress }: TrendingSectionProps) {
 const styles = StyleSheet.create({
   cardsRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
     marginTop: spacing.sm,
+  },
+  cardWrapper: {
+    width: '47.5%',
   },
   container: {
     marginTop: spacing.xl,

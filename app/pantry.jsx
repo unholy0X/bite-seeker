@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Alert } from "react-native";
 import { usePathname } from "expo-router";
 import { PantryScreen } from "@/src/features/pantry/screens/pantry-screen";
 import { AppBottomNav } from "@/src/features/navigation/components/app-bottom-nav";
@@ -12,7 +12,7 @@ export default function PantryRoute() {
   const pathname = usePathname();
   const [isAddOpen, setAddOpen] = useState(false);
 
-  const { loadPantry } = usePantryStore();
+  const { loadPantry, clearPantry } = usePantryStore();
 
   useEffect(() => {
     loadPantry({}).catch(() => {});
@@ -29,9 +29,25 @@ export default function PantryRoute() {
     loadPantry({}).catch(() => {});
   }, []);
 
+  const handleMenuPress = useCallback(() => {
+    Alert.alert('Pantry', 'What would you like to do?', [
+      {
+        text: 'Clear Pantry',
+        style: 'destructive',
+        onPress: () => {
+          Alert.alert('Clear Pantry', 'Remove all items from your pantry?', [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Clear', style: 'destructive', onPress: () => clearPantry({}) },
+          ]);
+        },
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  }, [clearPantry]);
+
   return (
     <View style={styles.screen}>
-      <PantryScreen onAddPress={() => setAddOpen(true)} />
+      <PantryScreen onAddPress={() => setAddOpen(true)} onMenuPress={handleMenuPress} />
       <AppBottomNav />
 
       <BottomSheetModal visible={isAddOpen} onClose={handleSheetClose} sheetBackground="#0E131D">

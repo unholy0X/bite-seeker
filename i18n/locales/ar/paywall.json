@@ -59,9 +59,9 @@
     "title": "ميزة Pro",
     "featureRequires": "تتطلب \"{{feature}}\" وصول Pro.",
     "howToUnlock": "كيفية إلغاء قفل Pro",
-    "holdSolbite": "احتفظ بـ {{threshold}}+ رمز SOLBITE في محفظتك المتصلة. يُتحقق من حالة Pro تلقائياً.",
+    "holdSolbite": "احتفظ بـ {{threshold}}+ رمز SKR في محفظتك المتصلة. يُتحقق من حالة Pro تلقائياً.",
     "currentStatus": "الحالة الحالية: المستوى المجاني",
-    "getSolbite": "احصل على SOLBITE على pump.fun",
+    "getSolbite": "احصل على SKR على Jupiter",
     "maybeLater": "ربما لاحقاً"
   },
   "terms": {

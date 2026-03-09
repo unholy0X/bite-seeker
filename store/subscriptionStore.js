@@ -39,7 +39,7 @@ export const useSubscriptionStore = create((set) => ({
     }
   },
 
-  // Check SOLBITE balance via backend GET /subscription
+  // Check SKR balance via backend GET /subscription
   loadSubscription: async () => {
     set({ isLoading: true });
     try {
